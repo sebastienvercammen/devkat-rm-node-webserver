@@ -1,0 +1,21 @@
+{
+  "name": "rm-node-webserver",
+  "version": "1.0.0",
+  "description": "RocketMap webserver in Node.js as a replacement for python's Flask dev webserver.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://gitlab.sebastienvercammen.be/devkat/rm-node-webserver.git"
+  },
+  "keywords": [
+    "rocketmap",
+    "devkat",
+    "webserver",
+    "node.js"
+  ],
+  "author": "devkat",
+  "license": "AGPL-3.0"
+}
