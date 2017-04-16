@@ -17,5 +17,15 @@
     "node.js"
   ],
   "author": "devkat",
-  "license": "AGPL-3.0"
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "compression": "^1.6.2",
+    "dotenv": "^4.0.0",
+    "express": "^4.15.2",
+    "express-handlebars": "^3.0.0",
+    "mysql2": "^1.2.0",
+    "sequelize": "^3.30.4",
+    "sqlite3": "^3.1.8",
+    "toobusy-js": "^0.5.1"
+  }
 }
