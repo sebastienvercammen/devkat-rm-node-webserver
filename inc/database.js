@@ -1,6 +1,11 @@
+// Parse config.
 require('dotenv').config();
 
+// Log coloring.
+require('manakin').global;
+
 var Sequelize = require('sequelize');
+var utils = require('./utils.js');
 
 
 /* Settings. */
@@ -20,6 +25,8 @@ const DB_FILE_PATH = process.env.DB_FILE_PATH || 'pogom.db';
 
 /* App. */
 
+console.log('Connecting to database on ' + DB_HOST + '...');
+
 var sequelize = new Sequelize(DB_DATABASE, DB_USER, DB_PASS, {
     host: DB_HOST,
     dialect: DB_TYPE,
@@ -34,9 +41,13 @@ var sequelize = new Sequelize(DB_DATABASE, DB_USER, DB_PASS, {
     storage: DB_FILE_PATH
 });
 
+console.log('Testing database connection...');
+
+sequelize.authenticate().catch(utils.handle_error);
+
 
 /* Exports. */
 
-module.exports.getInstance = function () {
+module.exports.getInstance = function() {
     return sequelize;
 };

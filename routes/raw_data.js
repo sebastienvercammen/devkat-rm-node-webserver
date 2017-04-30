@@ -1,63 +1,240 @@
+require('dotenv').config();
+
+var utils = require('../inc/utils.js');
 var express = require('express');
 var router = express.Router();
 
-router.get('/raw_data', function (req, res) {
+var db = require('../inc/database.js').getInstance();
+var Pokemon = db.import('../models/Pokemon.js');
+
+
+/* Readability. */
+var isUndefined = utils.isUndefined;
+
+
+/* Settings. */
+const POKEMON_LIMIT_PER_QUERY = parseInt(process.env.POKEMON_LIMIT_PER_QUERY) || 1000;
+
+
+/* Route. */
+router.get('/raw_data', function(req, res) {
+    var query = req.query;
+
+
+    /* Verify request. */
+    
+    // Make sure we have all required parameters for a correct request.
+    const required = [
+        'swLat', 'swLng', 'neLat', 'neLng',
+        'oSwLat', 'oSwLng', 'oNeLat', 'oNeLng'
+    ];
+    
+    // Bad request.
+    if (!queryHasRequiredParams(query, required))
+        return res.sendStatus(400);
+
+
     /* Parse GET params. */
     
     // Show/hide.
-    const show_pokemon = convertGetParam(req.query.pokemon, true);
-    const show_pokestops = convertGetParam(req.query.pokestops, true);
-    const show_gyms = convertGetParam(req.query.gyms, true);
+    const no_pokemon = parseGetParam(query.no_pokemon, false);
+    const no_pokestops = parseGetParam(query.no_pokestops, false);
+    const no_gyms = parseGetParam(query.no_gyms, false);
     
+    const show_pokemon = parseGetParam(query.pokemon, true) && !no_pokemon;
+    const show_pokestops = parseGetParam(query.pokestops, true) && !no_pokestops;
+    const show_gyms = parseGetParam(query.gyms, true) && !no_gyms;
+
     // Previous switch settings.
-    const last_gyms = convertGetParam(req.query.lastgyms, true);
-    const last_pokestops = convertGetParam(req.query.lastpokestops, true);
-    const last_pokemon = convertGetParam(req.query.lastpokemon, true);
-    const last_slocs = convertGetParam(req.query.lastslocs, true);
-    const last_spawns = convertGetParam(req.query.lastspawns, false);
+    const last_gyms = parseGetParam(query.lastgyms, false);
+    const last_pokestops = parseGetParam(query.lastpokestops, false);
+    const last_pokemon = parseGetParam(query.lastpokemon, false);
+    const last_slocs = parseGetParam(query.lastslocs, false);
+    const last_spawns = parseGetParam(query.lastspawns, false);
+
+    // Locations.
+    const swLat = parseGetParam(query.swLat, undefined);
+    const swLng = parseGetParam(query.swLng, undefined);
+    const neLat = parseGetParam(query.neLat, undefined);
+    const neLng = parseGetParam(query.neLng, undefined);
+    const oSwLat = parseGetParam(query.oSwLat, undefined);
+    const oSwLng = parseGetParam(query.oSwLng, undefined);
+    const oNeLat = parseGetParam(query.oNeLat, undefined);
+    const oNeLng = parseGetParam(query.oNeLng, undefined);
     
+    // Other.
+    const scanned = parseGetParam(query.scanned, false);
+    const spawnpoints = parseGetParam(query.spawnpoints, false);
+    var timestamp = parseGetParam(query.timestamp, 0);
+    
+    // Left-over from old code, not sure where it came from.
+    // Original comment: "Overlap, for rounding errors."
+    if (timestamp !== 0)
+        timestamp -= 1000;
+    
+    // Query response is a combination of Pokémon + Pokéstops + Gyms, so
+    // we have to wait until the necessary Promises have completed.
+    var completed_pokemon = !show_pokemon;
+    var completed_pokestops = !show_pokestops;
+    var completed_gyms = !show_gyms;
+
     // General/optional.
     // TODO: Check if "lured_only" is proper var name.
-    const lured_only = convertGetParam(req.query.luredonly, true);
-    
-    
+    const lured_only = parseGetParam(query.luredonly, true);
+
+    var new_area = false; // Did we zoom in/out?
+
+    // We zoomed in, no new area uncovered.
+    if (oSwLng < swLng && oSwLat < swLat && oNeLat > neLat && oNeLng > neLng)
+        new_area = false;
+    else if (!(oSwLat === swLat && oSwLng === swLng && oNeLat === neLat && oNeLng === neLng))
+        new_area = true; // We moved.
+
+
     /* Prepare response. */
     var response = {};
-    
+
     // Values for next request.
-    response.lastgyms = last_gyms;
-    response.lastpokestops = last_pokestops;
-    response.lastpokemon = last_pokemon;
-    response.lastslocs = last_slocs;
-    response.lastspawns = last_spawns;
-    
+    response.lastgyms = show_gyms;
+    response.lastpokestops = show_pokestops;
+    response.lastpokemon = show_pokemon;
+    response.lastslocs = scanned;
+    response.lastspawns = spawnpoints;
+
+    // Pass current coords as old coords.
+    response.oSwLat = swLat;
+    response.oSwLng = swLng;
+    response.oNeLat = neLat;
+    response.oNeLng = neLng;
+
     // Handle Pokémon.
-    if (show_pokemon) {}
-    
+    if (show_pokemon) {
+        // Pokémon IDs, whitelist or blacklist.
+        let ids = [];
+        let excluded = [];
+        
+        if (!isUndefined(query.ids))
+            ids = parseGetParam(query.ids.split(','), []);
+        if (!isUndefined(query.eids))
+            excluded = parseGetParam(query.eids.split(','), []);
+        if (!isUndefined(query.reids)) {
+            // TODO: Check this implementation of reids. In original, it's
+            // separate to other query types.
+            let reids = parseGetParam(query.reids.split(','), []);
+            ids += reids;
+            response.reids = reids;
+        }
+        
+        // TODO: Change .then() below w/ custom "completed" flags into proper
+        // Promise queue.
+        
+        // Completion handler.
+        let foundMons = function(pokes) {
+            response.pokemons = pokes;
+            completed_pokemon = true;
+            
+            return partialCompleted(completed_pokemon, completed_pokestops, completed_gyms, res, response);
+        };
+        
+        // TODO: Rewrite below workflow. We reimplemented the old Python code,
+        // but it's kinda ugly.
+        
+        // Whitelist query?
+        if (ids.length > 0) {
+            // Run query async.
+            Pokemon.get_active_by_ids(ids, excluded, swLat, swLng, neLat, neLng).then(foundMons).catch(utils.handle_error);
+        } else if (!last_pokemon) {
+            // First query from client?
+            Pokemon.get_active(null, swLat, swLng, neLat, neLng).then(foundMons).catch(utils.handle_error);
+        } else {
+            // If map is already populated only request modified Pokemon
+            // since last request time.
+            Pokemon.get_active(excluded, swLat, swLng, neLat, neLng, timestamp).then(function(pokes) {
+                // If screen is moved add newly uncovered Pokemon to the
+                // ones that were modified since last request time.
+                if (new_area) {
+                    Pokemon.get_active(excluded, swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng).then(function(new_pokes) {
+                        return foundMons(pokes.concat(new_pokes));
+                    }).catch(utils.handle_error);
+                } else {
+                    return foundMons(pokes);
+                }
+            }).catch(utils.handle_error);
+        }
+
+        // TODO: On first visit, send in-memory data for viewport.
+    }
+
     // Handle Pokéstops.
     if (show_pokestops) {}
-    
+
     // Handle gyms.
     if (show_gyms) {}
     
-    res.send('Not implemented yet.');
+    // A request for nothing?
+    if (!show_pokemon && !show_pokestops && !show_gyms)
+        return res.sendStatus(400);
 });
 
-// Helpers.
-function convertGetParam(param, defaultVal) {
-    // Undefined?
-    if (typeof param === 'undefined')
-        return defaultVal;
+
+/* Helpers. */
+
+// Query is a combination of partials. When all completed, return response.
+function partialCompleted(pokemon, pokestops, gyms, res, response) {
+    if (true || pokemon && pokestops && gyms)
+        return res.json(response);
+}
+
+function queryHasRequiredParams(query, requiredParams) {
+    for (let i = 0; i < requiredParams.length; i++) {
+        let item = requiredParams[i];
+        
+        // Missing or empty parameter, bad request.
+        if (!query.hasOwnProperty(item) || item === null)
+            return false;
+        
+        // Can't be empty strings, we need values.
+        if (typeof query[item] === 'string' && query[item].length === 0)
+            return false;
+    }
     
+    return true;
+}
+
+function parseGetParam(param, defaultVal) {
+    // Undefined?
+    if (isUndefined(param))
+        return defaultVal;
+
     // Ok, we have a value.
     var val = param;
-    
+
     // Truthy/falsy strings?
     if (val === 'true')
         return true;
     else if (val === 'false')
         return false;
+
+    // Make sure single values adhere to defaultVal type.
+    if (defaultVal instanceof Array && typeof val === 'string')
+        val = [ val ];
     
+    // No empty values should be left over.
+    if (val instanceof Array) {
+        for (let i = 0; i < val.length; i++) {
+            let item = val[i];
+            
+            // Remove empty item.
+            if (item.length === 0)
+                val = val.splice(i, 1);
+        }
+    }
+    
+    // Numbers should be converted back to numeric types.
+    // Don't use parseInt() for numeric checking, use parseFloat() instead.
+    if (utils.isNumeric(val))
+        val = parseFloat(val);
+
     // Rest is good to go.
     return val;
 }
