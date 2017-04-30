@@ -9,7 +9,7 @@ var Pokemon = db.import('../models/Pokemon.js');
 
 
 /* Readability. */
-var isUndefined = utils.isUndefined;
+var isEmpty = utils.isEmpty;
 
 
 /* Settings. */
@@ -69,12 +69,11 @@ router.get('/raw_data', function(req, res) {
     // Other.
     const scanned = parseGetParam(query.scanned, false);
     const spawnpoints = parseGetParam(query.spawnpoints, false);
-    var timestamp = parseGetParam(query.timestamp, 0);
+    var timestamp = parseGetParam(query.timestamp, undefined);
     
-    // Left-over from old code, not sure where it came from.
-    // Original comment: "Overlap, for rounding errors."
-    if (timestamp !== 0)
-        timestamp -= 1000;
+    // Convert to usable date object.
+    if (!isEmpty(timestamp))
+        timestamp = new Date(timestamp);
     
     // Query response is a combination of Pokémon + Pokéstops + Gyms, so
     // we have to wait until the necessary Promises have completed.
@@ -120,11 +119,11 @@ router.get('/raw_data', function(req, res) {
         let ids = [];
         let excluded = [];
         
-        if (!isUndefined(query.ids))
+        if (!isEmpty(query.ids))
             ids = parseGetParam(query.ids.split(','), []);
-        if (!isUndefined(query.eids))
+        if (!isEmpty(query.eids))
             excluded = parseGetParam(query.eids.split(','), []);
-        if (!isUndefined(query.reids)) {
+        if (!isEmpty(query.reids)) {
             // TODO: Check this implementation of reids. In original, it's
             // separate to other query types.
             let reids = parseGetParam(query.reids.split(','), []);
