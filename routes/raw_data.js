@@ -62,6 +62,10 @@ router.get('/raw_data', function(req, res) {
     const oNeLat = parseGetParam(query.oNeLat, undefined);
     const oNeLng = parseGetParam(query.oNeLng, undefined);
     
+    // TODO: Reject requests for all data?
+    // TODO: Check distance in locations. If it exceeds a certain distance,
+    // refuse the query.
+    
     // Other.
     const scanned = parseGetParam(query.scanned, false);
     const spawnpoints = parseGetParam(query.spawnpoints, false);
@@ -93,6 +97,9 @@ router.get('/raw_data', function(req, res) {
 
     /* Prepare response. */
     var response = {};
+    
+    // UTC timestamp.
+    response.timestamp = new Date().getTime();
 
     // Values for next request.
     response.lastgyms = show_gyms;
