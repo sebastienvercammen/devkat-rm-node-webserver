@@ -211,7 +211,7 @@ function queryHasRequiredParams(query, requiredParams) {
 
 function parseGetParam(param, defaultVal) {
     // Undefined?
-    if (isUndefined(param))
+    if (isEmpty(param))
         return defaultVal;
 
     // Ok, we have a value.
