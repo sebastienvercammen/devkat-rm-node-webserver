@@ -15,9 +15,11 @@ var isEmpty = utils.isEmpty;
 /* Settings. */
 const POKEMON_LIMIT_PER_QUERY = parseInt(process.env.POKEMON_LIMIT_PER_QUERY) || 1000;
 
+// Routing.
+const ROUTE_RAW_DATA = process.env.ROUTE_RAW_DATA || '/raw_data';
 
 /* Route. */
-router.get('/raw_data', function(req, res) {
+router.get(ROUTE_RAW_DATA, function(req, res) {
     var query = req.query;
 
 
