@@ -223,6 +223,9 @@ module.exports = function (sequelize, DataTypes) {
             'oNeLng': oNeLng,
             'timestamp': timestamp
         });
+        
+        // Return promise.
+        return Pokemon.findAll(poke_options);
     };
 
     // Get active Pokémon by coords & Pokémon IDs.
