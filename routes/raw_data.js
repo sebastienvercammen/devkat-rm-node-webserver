@@ -27,8 +27,8 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
     
     // Make sure we have all required parameters for a correct request.
     const required = [
-        'swLat', 'swLng', 'neLat', 'neLng',
-        'oSwLat', 'oSwLng', 'oNeLat', 'oNeLng'
+        /*'swLat', 'swLng', 'neLat', 'neLng',
+        'oSwLat', 'oSwLng', 'oNeLat', 'oNeLng'*/
     ];
     
     // Bad request.
