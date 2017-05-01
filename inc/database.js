@@ -12,6 +12,7 @@ var utils = require('./utils.js');
 
 const DB_TYPE = process.env.DB_TYPE || 'sqlite';
 const DB_HOST = process.env.DB_HOST || 'localhost';
+const DB_PORT = process.env.DB_PORT || 3306;
 const DB_USER = process.env.DB_USER || 'root';
 const DB_PASS = process.env.DB_PASS || '';
 const DB_DATABASE = process.env.DB_DATABASE || 'db_name';
@@ -25,10 +26,11 @@ const DB_FILE_PATH = process.env.DB_FILE_PATH || 'pogom.db';
 
 /* App. */
 
-console.log('Connecting to database on ' + DB_HOST + '...');
+console.log('Connecting to database on ' + DB_HOST + ': ' + DB_PORT + '...');
 
 var sequelize = new Sequelize(DB_DATABASE, DB_USER, DB_PASS, {
     host: DB_HOST,
+    port: DB_PORT,
     dialect: DB_TYPE,
 
     pool: {
