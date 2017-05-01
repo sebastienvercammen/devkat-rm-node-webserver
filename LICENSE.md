@@ -1,6 +1,6 @@
 # Node.js devkat Webserver for RocketMap - Terms and conditions
 
-1. **Preamble:** This Agreement, signed on May 1, 2017 (hereinafter: Effective Date) governs the relationship between a devkat Patron, a private person, (hereinafter: Licensee) and devkat, a duly registered company in whose principal place of business is Brussels (hereinafter: Licensor). This Agreement sets the terms, rights, restrictions and obligations on using Node.js devkat Webserver for RocketMap (hereinafter: The Software) created and owned by Licensor, as detailed herein
+1. **Preamble:** This Agreement, signed on May 1, 2017 (hereinafter: Effective Date) governs the relationship between a devkat Patron, a private person, (hereinafter: Licensee) and devkat, a duly registered company in whose principal place of business is Brussels, Belgium (hereinafter: Licensor). This Agreement sets the terms, rights, restrictions and obligations on using Node.js devkat Webserver for RocketMap (hereinafter: The Software) created and owned by Licensor, as detailed herein.
 
 2. **License Grant:** Licensor hereby grants Licensee a Personal, Non-assignable & non-transferable, Perpetual, Non-commercial, Without the rights to create derivative works, Non-exclusive license, all with accordance with the terms set forth and other legal restrictions set forth in 3rd party software used while running Software.
     1. Limited: Licensee may use Software for the purpose of:
@@ -13,7 +13,7 @@
     3. Binary Restricted: Licensee may sublicense Software as a part of a larger work containing more than Software, distributed solely in Object or Binary form under a personal, non-sublicensable, limited license. Such redistribution shall be limited to unlimited codebases.
     4. Non Assignable & Non-Transferable: Licensee may not assign or transfer his rights and duties under this license.
     5. Non-Commercial: Licensee may not use Software for commercial purposes. for the purpose of this license, commercial purposes means that a 3rd party has to pay in order to access Software or that the Website that runs Software is behind a paywall.
-    6. With Attribution Requirements?: A clearly visible devkat logo that links to our best available website, currently the devkat Discord (http://discord.devkat.org).
+    6. With Attribution Requirements: A clearly visible devkat logo that links to our best available website, currently the devkat Discord (http://discord.devkat.org).
 
 3. **Term & Termination:** The Term of this license shall be until terminated. Licensor may terminate this Agreement, including Licensee's license in the case where Licensee :
     1. became insolvent or otherwise entered into any liquidation process; or
