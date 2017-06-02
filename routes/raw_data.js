@@ -27,8 +27,8 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
     
     // Make sure we have all required parameters for a correct request.
     const required = [
-        /*'swLat', 'swLng', 'neLat', 'neLng',
-        'oSwLat', 'oSwLng', 'oNeLat', 'oNeLng'*/
+        'swLat', 'swLng', 'neLat', 'neLng',
+        'oSwLat', 'oSwLng', 'oNeLat', 'oNeLng'
     ];
     
     // Bad request.
@@ -198,11 +198,7 @@ function queryHasRequiredParams(query, requiredParams) {
         let item = requiredParams[i];
         
         // Missing or empty parameter, bad request.
-        if (!query.hasOwnProperty(item) || item === null)
-            return false;
-        
-        // Can't be empty strings, we need values.
-        if (typeof query[item] === 'string' && query[item].length === 0)
+        if (!query.hasOwnProperty(item) || isEmpty(item))
             return false;
     }
     

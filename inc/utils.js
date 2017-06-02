@@ -20,7 +20,7 @@ var utils = {
     
     // TODO: Figure out better name than "isEmpty".
     isEmpty: function(val) {
-        return (utils.isUndefined(val) || val === null);
+        return (utils.isUndefined(val) || val === null || val === '');
     },
     
     // Check if a string is numeric (e.g. for GET params).

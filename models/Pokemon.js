@@ -29,7 +29,7 @@ function prepareQueryOptions(options) {
     var oNeLat = options.oNeLat;
     var oNeLng = options.oNeLng;
     var timestamp = options.timestamp || false;
-    
+
     // Query options.
     let poke_options = {
         limit: POKEMON_LIMIT_PER_QUERY,
@@ -39,7 +39,7 @@ function prepareQueryOptions(options) {
             }
         }
     };
-    
+
     // Optional viewport.
     if (!isEmpty(swLat) && !isEmpty(swLng) && !isEmpty(neLat) && !isEmpty(neLng)) {
         poke_options.where.latitude = {
@@ -51,36 +51,36 @@ function prepareQueryOptions(options) {
             $lte: neLng
         };
     }
-    
+
     // Avoid Sequelize translating an empty list to "NOT IN (NULL)".
     if (whitelist.length > 0) {
         poke_options.where.pokemon_id = {
             $in: whitelist
         };
     }
-    
+
     if (blacklist.length > 0) {
         poke_options.where.pokemon_id = {
             $notIn: blacklist
         };
     }
-    
+
     // If timestamp is known, only load modified Pokemon.
     if (timestamp !== false) {
         // Change POSIX timestamp to UTC time.
         timestamp = new Date(timestamp).getTime();
-        
+
         poke_options.where.last_modified = {
             $gt: timestamp
         };
     }
-    
+
     // Send Pokemon in view but exclude those within old boundaries.
     if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
         poke_options.where = {
             $and: [
                 poke_options.where,
-                { 
+                {
                     $not: {
                         latitude: {
                             $gte: oSwLat,
@@ -95,7 +95,7 @@ function prepareQueryOptions(options) {
             ]
         };
     }
-    
+
     return poke_options;
 }
 
@@ -173,6 +173,30 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.DATE,
             allowNull: true,
             defaultValue: null
+        },
+        // TODO: Move this from RM stock backend to frontend.
+        // These are unnecessary VIRTUAL fields.
+        pokemon_name: {
+            type: DataTypes.VIRTUAL,
+            defaultValue: '',
+            get() {
+                return '';
+            }
+        },
+        pokemon_rarity: {
+            type: DataTypes.VIRTUAL,
+            allowNull: true,
+            defaultValue: null,
+            get() {
+                return null;
+            }
+        },
+        pokemon_types: {
+            type: DataTypes.VIRTUAL,
+            defaultValue: [],
+            get() {
+                return [];
+            }
         }
     }, {
         timestamps: false,
@@ -223,7 +247,7 @@ module.exports = function (sequelize, DataTypes) {
             'oNeLng': oNeLng,
             'timestamp': timestamp
         });
-        
+
         // Return promise.
         return Pokemon.findAll(poke_options);
     };
@@ -239,7 +263,7 @@ module.exports = function (sequelize, DataTypes) {
             'neLat': neLat,
             'neLng': neLng
         });
-        
+
         // Return promise.
         return Pokemon.findAll(poke_options);
     };
