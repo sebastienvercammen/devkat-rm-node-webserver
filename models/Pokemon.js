@@ -169,6 +169,21 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
             defaultValue: null
         },
+        form: {
+            type: 'SMALLINT',
+            allowNull: true,
+            defaultValue: null
+        },
+        cp: {
+            type: 'SMALLINT',
+            allowNull: true,
+            defaultValue: null
+        },
+        cp_multiplier: {
+            type: DataTypes.FLOAT,
+            allowNull: true,
+            defaultValue: null
+        },
         last_modified: {
             type: DataTypes.DATE,
             allowNull: true,
