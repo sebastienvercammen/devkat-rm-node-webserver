@@ -127,7 +127,11 @@ module.exports = function (sequelize, DataTypes) {
         },
         disappear_time: {
             type: DataTypes.DATE,
-            allowNull: false
+            allowNull: false,
+            get() {
+                let date = new Date(this.getDataValue('disappear_time'));
+                return date.getTime();
+            }
         },
         individual_attack: {
             type: 'SMALLINT',
