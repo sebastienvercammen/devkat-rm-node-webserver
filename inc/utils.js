@@ -12,17 +12,17 @@ var utils = {
         console.error(err);
         process.exit(1);
     },
-    
+
     // Readability methods.
     isUndefined: function(val) {
         return (typeof val === 'undefined');
     },
-    
+
     // TODO: Figure out better name than "isEmpty".
     isEmpty: function(val) {
         return (utils.isUndefined(val) || val === null || val === '');
     },
-    
+
     // Check if a string is numeric (e.g. for GET params).
     isNumeric: function(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);

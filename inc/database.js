@@ -2,7 +2,8 @@
 require('dotenv').config();
 
 // Log coloring.
-require('manakin').global;
+var con = require('manakin').global;
+con.setBright();
 
 var Sequelize = require('sequelize');
 var utils = require('./utils.js');
@@ -26,7 +27,7 @@ const DB_FILE_PATH = process.env.DB_FILE_PATH || 'pogom.db';
 
 /* App. */
 
-console.log('Connecting to database on ' + DB_HOST + ': ' + DB_PORT + '...');
+console.log('[%s] Connecting to database on %s:%s...', process.pid, DB_HOST, DB_PORT);
 
 var sequelize = new Sequelize(DB_DATABASE, DB_USER, DB_PASS, {
     host: DB_HOST,
@@ -43,7 +44,7 @@ var sequelize = new Sequelize(DB_DATABASE, DB_USER, DB_PASS, {
     storage: DB_FILE_PATH
 });
 
-console.log('Testing database connection...');
+console.log('[%s] Testing database connection...', process.pid);
 
 sequelize.authenticate().catch(utils.handle_error);
 
