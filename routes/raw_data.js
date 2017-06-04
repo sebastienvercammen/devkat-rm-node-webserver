@@ -1,4 +1,4 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 
 var utils = require('../inc/utils.js');
 var express = require('express');
@@ -89,7 +89,7 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
 
     var new_area = false; // Did we zoom in/out?
 
-    if (!isEmpy(oSwLat) && !isEmpy(oSwLng) && !isEmpy(oNeLat) && !isEmpy(oNeLng)) {
+    if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
         // We zoomed in, no new area uncovered.
         if (oSwLng < swLng && oSwLat < swLat && oNeLat > neLat && oNeLng > neLng)
             new_area = false;
