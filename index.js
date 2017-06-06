@@ -36,7 +36,8 @@ var online_workers = {}; // Status per worker PID.
 
 const DEBUG = process.env.DEBUG === 'true' || false;
 const GZIP = process.env.ENABLE_GZIP === 'true' || false;
-const WEB_PORT = parseInt(process.env.PORT) || 3000;
+const WEB_HOST = process.env.WEB_HOST || '0.0.0.0';
+const WEB_PORT = parseInt(process.env.WEB_PORT) || 3000;
 const WEB_WORKERS = parseInt(process.env.WEB_WORKERS) || require('os').cpus().length;
 const AUTORESTART_WORKERS = process.env.AUTORESTART_WORKERS !== 'false' || false;
 
@@ -219,9 +220,9 @@ if (cluster.isMaster) {
     /* App. */
 
     // Workers can share any TCP connection.
-    var server = app.listen(WEB_PORT, function() {
+    var server = app.listen(WEB_PORT, WEB_HOST, function() {
         if (DEBUG) {
-            console.success('Worker %s (PID %s) is listening on port %s.', cluster.worker.id, process.pid, WEB_PORT);
+            console.success('Worker %s (PID %s) is listening on %s:%s.', cluster.worker.id, process.pid, WEB_HOST, WEB_PORT);
         }
         
         // We're online. Let's tell our master.
