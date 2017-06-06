@@ -8,6 +8,8 @@
             - Order sent items by distance to center of viewport, so even with
               a query limit, the client gets the items closest to its center.
             - Store initial viewpoint in memory.
+            - Send gyms.
+            - Stream results in chunks. Needs frontend JS rework.
         - Move existing RM templates to Handlebars.
         - Global blacklist.
         - Stats & mobile pages.
