@@ -6,6 +6,7 @@ var router = express.Router();
 
 var db = require('../inc/database.js').getInstance();
 var Pokemon = db.import('../models/Pokemon.js');
+var Pokestop = db.import('../models/Pokestop.js');
 
 
 /* Readability. */
@@ -14,8 +15,6 @@ var isEmpty = utils.isEmpty;
 
 /* Settings. */
 const POKEMON_LIMIT_PER_QUERY = parseInt(process.env.POKEMON_LIMIT_PER_QUERY) || 1000;
-
-// Routing.
 const ROUTE_RAW_DATA = process.env.ROUTE_RAW_DATA || '/raw_data';
 
 /* Route. */
@@ -102,7 +101,7 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
     var response = {};
 
     // UTC timestamp.
-    response.timestamp = new Date().getTime();
+    response.timestamp = Date.now();
 
     // Values for next request.
     response.lastgyms = show_gyms;
@@ -157,16 +156,18 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
             // First query from client?
             Pokemon.get_active(null, swLat, swLng, neLat, neLng).then(foundMons).catch(utils.handle_error);
         } else {
-            // If map is already populated only request modified Pokemon
+            // If map is already populated only request modified Pokémon
             // since last request time.
             Pokemon.get_active(excluded, swLat, swLng, neLat, neLng, timestamp).then(function(pokes) {
-                // If screen is moved add newly uncovered Pokemon to the
+                // If screen is moved add newly uncovered Pokémon to the
                 // ones that were modified since last request time.
                 if (new_area) {
                     Pokemon.get_active(excluded, swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng).then(function(new_pokes) {
+                        // Add the new ones to the old result and pass to handler.
                         return foundMons(pokes.concat(new_pokes));
                     }).catch(utils.handle_error);
                 } else {
+                    // Unchanged viewport.
                     return foundMons(pokes);
                 }
             }).catch(utils.handle_error);
@@ -176,7 +177,36 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
     }
 
     // Handle Pokéstops.
-    if (show_pokestops) {}
+    if (show_pokestops) {
+        // Completion handler.
+        let foundPokestops = function(stops) {
+            response.pokestops = stops;
+            completed_pokestops = true;
+
+            return partialCompleted(completed_pokemon, completed_pokestops, completed_gyms, res, response);
+        };
+        
+        // First query from client?
+        if (!last_pokestops) {
+            Pokestop.get_stops(swLat, swLng, neLat, neLng, lured_only).then(foundPokestops).catch(utils.handle_error);
+        } else {
+            // If map is already populated only request modified Pokéstops
+            // since last request time.
+            Pokestop.get_stops(swLat, swLng, neLat, neLng, lured_only, timestamp).then(function(pokestops) {
+                // If screen is moved add newly uncovered Pokéstops to the
+                // ones that were modified since last request time.
+                if (new_area) {
+                    Pokestop.get_stops(swLat, swLng, neLat, neLng, lured_only, timestamp, oSwLat, oSwLng, oNeLat, oNeLng).then(function(new_pokestops) {
+                        // Add the new ones to the old result and pass to handler.
+                        return foundPokestops(pokestops.concat(new_pokestops));
+                    }).catch(utils.handle_error);
+                } else {
+                    // Unchanged viewport.
+                    return foundPokestops(pokestops);
+                }
+            }).catch(utils.handle_error);
+        }
+    }
 
     // Handle gyms.
     if (show_gyms) {}
@@ -191,7 +221,7 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
 
 // Query is a combination of partials. When all completed, return response.
 function partialCompleted(pokemon, pokestops, gyms, res, response) {
-    if (true || pokemon && pokestops && gyms)
+    if (pokemon && pokestops /* TODO: && gyms */)
         return res.json(response);
 }
 

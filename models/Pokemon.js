@@ -3,7 +3,6 @@
 // Parse config.
 require('dotenv').config();
 
-var moment = require('moment');
 var utils = require('../inc/utils.js');
 
 
@@ -31,7 +30,7 @@ function prepareQueryOptions(options) {
     var timestamp = options.timestamp || false;
 
     // Query options.
-    let poke_options = {
+    var poke_options = {
         limit: POKEMON_LIMIT_PER_QUERY,
         where: {
             disappear_time: {
@@ -75,7 +74,7 @@ function prepareQueryOptions(options) {
         };
     }
 
-    // Send Pokemon in view but exclude those within old boundaries.
+    // Send Pokémon in view but exclude those within old boundaries.
     if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
         poke_options.where = {
             $and: [
@@ -254,7 +253,7 @@ module.exports = function (sequelize, DataTypes) {
     // Get active Pokémon by coords or timestamp.
     Pokemon.get_active = function (excluded, swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng) {
         // Prepare query.
-        let poke_options = prepareQueryOptions({
+        var poke_options = prepareQueryOptions({
             'blacklist': excluded,
             'swLat': swLat,
             'swLng': swLng,
@@ -274,7 +273,7 @@ module.exports = function (sequelize, DataTypes) {
     // Get active Pokémon by coords & Pokémon IDs.
     Pokemon.get_active_by_ids = function (ids, excluded, swLat, swLng, neLat, neLng) {
         // Query options.
-        let poke_options = prepareQueryOptions({
+        var poke_options = prepareQueryOptions({
             'whitelist': ids,
             'blacklist': excluded,
             'swLat': swLat,

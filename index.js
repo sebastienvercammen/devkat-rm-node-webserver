@@ -32,27 +32,27 @@ var online_workers = {}; // Status per worker PID.
 
 /* Settings. */
 
-const DEBUG = process.env.DEBUG || false;
-const GZIP = process.env.ENABLE_GZIP || false;
-const WEB_PORT = process.env.PORT || 3000;
+const DEBUG = process.env.DEBUG === 'true' || false;
+const GZIP = process.env.ENABLE_GZIP === 'true' || false;
+const WEB_PORT = parseInt(process.env.PORT) || 3000;
+const WEB_WORKERS = parseInt(process.env.WEB_WORKERS) || require('os').cpus().length;
+const AUTORESTART_WORKERS = process.env.AUTORESTART_WORKERS !== 'false' || false;
 
 
 // If we're the cluster master, manage our processes.
 if (cluster.isMaster) {
-    let numWorkers = require('os').cpus().length;
-
     if (DEBUG) {
-        console.log('Master cluster setting up %s workers...', numWorkers);
+        console.log('Master cluster setting up %s workers...', WEB_WORKERS);
     }
 
-    for (let i = 0; i < numWorkers; i++) {
+    for (let i = 0; i < WEB_WORKERS; i++) {
         cluster.fork();
     }
 
     // Worker is online, but not yet ready to handle requests.
     cluster.on('online', function(worker) {
         if (DEBUG) {
-            console.success('Worker %s (PID %s) is starting...', worker.id, worker.process.pid);
+            console.log('Worker %s (PID %s) is starting...', worker.id, worker.process.pid);
         }
     });
 
@@ -81,9 +81,14 @@ if (cluster.isMaster) {
 
         if (DEBUG) {
             console.error('Worker %s died with code %s, and signal %s.', pid, code, signal);
-            console.log('Starting a new worker.');
+            
+            if (AUTORESTART_WORKERS)
+                console.log('Starting a new worker.');
         }
-        cluster.fork();
+        
+        // Start new worker if autorestart is enabled.
+        if (AUTORESTART_WORKERS)
+            cluster.fork();
     });
 
     // Worker disconnected, either on graceful shutdown or kill.
@@ -94,17 +99,13 @@ if (cluster.isMaster) {
     });
 
     // Receive messages from workers.
-    process.on('message', function workerMsg(msg) {
-        let status = msg.status;
-        let id = msg.id;
-        let pid = msg.pid;
+    cluster.on('message', function workerMsg(worker, msg, handle) {
+        var status = msg.status;
+        var id = msg.id;
+        var pid = msg.pid;
 
         // Worker had a successful startup.
         if (status === 'ONLINE') {
-            if (DEBUG) {
-                console.success('Worker %s (PID %s) is online.', id, pid);
-            }
-
             online_workers[pid] = status;
         }
     });
@@ -164,11 +165,7 @@ if (cluster.isMaster) {
         }
 
         waitUntilAllWorkersDied(cluster.workers, 500, function allDead() {
-            if (DEBUG) {
-                console.log('All workers have exited.');
-            }
-
-            process.exit();
+            process.exit(0);
         });
     });
 } else {
@@ -224,16 +221,24 @@ if (cluster.isMaster) {
         if (DEBUG) {
             console.success('Worker %s (PID %s) is listening on port %s.', cluster.worker.id, process.pid, WEB_PORT);
         }
+        
+        // We're online. Let's tell our master.
+        process.send({
+            'status': 'ONLINE',
+            'id': cluster.worker.id,
+            'pid': process.pid
+        });
     });
 
 
     /* Graceful worker shutdown. */
     process.on('message', function workerMsg(msg) {
         if (msg === 'shutdown') {
-            console.log('beep %s', cluster.worker.id);
             // Calling .shutdown allows your process to exit normally.
             toobusy.shutdown();
             server.close();
+            
+            console.success('Gracefully closed worker %s (PID %s).', cluster.worker.id, process.pid);
             process.exit(0);
         }
     });
