@@ -29,7 +29,8 @@ function prepareQueryOptions(options) {
 
     // Query options.
     var gym_options = {
-        limit: GYM_LIMIT_PER_QUERY
+        limit: GYM_LIMIT_PER_QUERY,
+        order: []
     };
 
     // If no viewport, defaults.
@@ -48,6 +49,34 @@ function prepareQueryOptions(options) {
             $lte: neLng
         }
     };
+
+    /*
+     * If we have a viewport, use distance ordering.
+     */
+
+    // Center of viewport.
+    var viewport_width = neLng - swLng;
+    var viewport_height = neLat - swLat;
+    var middle_point_lat = neLat - (viewport_height / 2);
+    var middle_point_lng = neLng - (viewport_width / 2);
+
+    gym_options.attributes.include = [
+        [
+            // Calculate distance from middle point in viewport w/ MySQL.
+            sequelize.literal(`
+                3959 * 
+                acos(cos(radians(` + middle_point_lat + `)) * 
+                cos(radians(\`latitude\`)) * 
+                cos(radians(\`longitude\`) - 
+                radians(` + middle_point_lng + `)) + 
+                sin(radians(` + middle_point_lat + `)) * 
+                sin(radians(\`latitude\`)))
+                `),
+            'distance'
+        ]
+    ];
+
+    gym_options.order.push(['distance', 'ASC']);
 
     // If timestamp is known, only load updated Gyms.
     if (timestamp !== false) {

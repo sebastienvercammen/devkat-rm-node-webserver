@@ -36,12 +36,14 @@ function prepareQueryOptions(options) {
 
     // Query options.
     var poke_options = {
+        attributes: {},
         limit: POKEMON_LIMIT_PER_QUERY,
         where: {
             disappear_time: {
                 $gt: new Date().getTime()
             }
-        }
+        },
+        order: []
     };
 
     // Optional viewport.
@@ -54,6 +56,35 @@ function prepareQueryOptions(options) {
             $gte: swLng,
             $lte: neLng
         };
+
+
+        /*
+         * If we have a viewport, use distance ordering.
+         */
+        
+        // Center of viewport.
+        var viewport_width = neLng - swLng;
+        var viewport_height = neLat - swLat;
+        var middle_point_lat = neLat - (viewport_height / 2);
+        var middle_point_lng = neLng - (viewport_width / 2);
+        
+        poke_options.attributes.include = [
+            [
+                // Calculate distance from middle point in viewport w/ MySQL.
+                sequelize.literal(`
+                    3959 * 
+                    acos(cos(radians(` + middle_point_lat + `)) * 
+                    cos(radians(\`latitude\`)) * 
+                    cos(radians(\`longitude\`) - 
+                    radians(` + middle_point_lng + `)) + 
+                    sin(radians(` + middle_point_lat + `)) * 
+                    sin(radians(\`latitude\`)))
+                    `),
+                'distance'
+            ]
+        ];
+        
+        poke_options.order.push(['distance', 'ASC']);
     }
 
     // Avoid Sequelize translating an empty list to "NOT IN (NULL)".
