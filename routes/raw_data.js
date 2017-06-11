@@ -1,4 +1,5 @@
-﻿require('dotenv').config();
+﻿
+require('dotenv').config();
 
 var utils = require('../inc/utils.js');
 var express = require('express');
@@ -18,7 +19,7 @@ const POKEMON_LIMIT_PER_QUERY = parseInt(process.env.POKEMON_LIMIT_PER_QUERY) ||
 const ROUTE_RAW_DATA = process.env.ROUTE_RAW_DATA || '/raw_data';
 
 /* Route. */
-router.get(ROUTE_RAW_DATA, function(req, res) {
+router.get(ROUTE_RAW_DATA, function (req, res) {
     var query = req.query;
 
 
@@ -138,7 +139,7 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
         // Promise queue.
 
         // Completion handler.
-        let foundMons = function(pokes) {
+        let foundMons = function (pokes) {
             response.pokemons = pokes;
             completed_pokemon = true;
 
@@ -158,11 +159,11 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
         } else {
             // If map is already populated only request modified Pokémon
             // since last request time.
-            Pokemon.get_active(excluded, swLat, swLng, neLat, neLng, timestamp).then(function(pokes) {
+            Pokemon.get_active(excluded, swLat, swLng, neLat, neLng, timestamp).then(function (pokes) {
                 // If screen is moved add newly uncovered Pokémon to the
                 // ones that were modified since last request time.
                 if (new_area) {
-                    Pokemon.get_active(excluded, swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng).then(function(new_pokes) {
+                    Pokemon.get_active(excluded, swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng).then(function (new_pokes) {
                         // Add the new ones to the old result and pass to handler.
                         return foundMons(pokes.concat(new_pokes));
                     }).catch(utils.handle_error);
@@ -179,24 +180,24 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
     // Handle Pokéstops.
     if (show_pokestops) {
         // Completion handler.
-        let foundPokestops = function(stops) {
+        let foundPokestops = function (stops) {
             response.pokestops = stops;
             completed_pokestops = true;
 
             return partialCompleted(completed_pokemon, completed_pokestops, completed_gyms, res, response);
         };
-        
+
         // First query from client?
         if (!last_pokestops) {
             Pokestop.get_stops(swLat, swLng, neLat, neLng, lured_only).then(foundPokestops).catch(utils.handle_error);
         } else {
             // If map is already populated only request modified Pokéstops
             // since last request time.
-            Pokestop.get_stops(swLat, swLng, neLat, neLng, lured_only, timestamp).then(function(pokestops) {
+            Pokestop.get_stops(swLat, swLng, neLat, neLng, lured_only, timestamp).then(function (pokestops) {
                 // If screen is moved add newly uncovered Pokéstops to the
                 // ones that were modified since last request time.
                 if (new_area) {
-                    Pokestop.get_stops(swLat, swLng, neLat, neLng, lured_only, timestamp, oSwLat, oSwLng, oNeLat, oNeLng).then(function(new_pokestops) {
+                    Pokestop.get_stops(swLat, swLng, neLat, neLng, lured_only, timestamp, oSwLat, oSwLng, oNeLat, oNeLng).then(function (new_pokestops) {
                         // Add the new ones to the old result and pass to handler.
                         return foundPokestops(pokestops.concat(new_pokestops));
                     }).catch(utils.handle_error);
@@ -209,7 +210,36 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
     }
 
     // Handle gyms.
-    if (show_gyms) {}
+    if (show_gyms) {
+        // Completion handler.
+        let foundGyms = function (gyms) {
+            response.gyms = gyms;
+            completed_gyms = true;
+
+            return partialCompleted(completed_pokemon, completed_pokestops, completed_gyms, res, response);
+        };
+        
+        // First query from client?
+        if (!last_gyms) {
+            Gym.get_gyms(swLat, swLng, neLat, neLng).then(foundGyms).catch(utils.handle_error);
+        } else {
+            // If map is already populated only request modified Gyms
+            // since last request time.
+            Gym.get_gyms(swLat, swLng, neLat, neLng, timestamp).then(function (gyms) {
+                // If screen is moved add newly uncovered Gyms to the
+                // ones that were modified since last request time.
+                if (new_area) {
+                    Gym.get_gyms(swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng).then(function (new_gyms) {
+                        // Add the new ones to the old result and pass to handler.
+                        return foundGyms(gyms.concat(new_gyms));
+                    }).catch(utils.handle_error);
+                } else {
+                    // Unchanged viewport.
+                    return foundGyms(pokestops);
+                }
+            }).catch(utils.handle_error);
+        }
+    }
 
     // A request for nothing?
     if (!show_pokemon && !show_pokestops && !show_gyms)
@@ -221,7 +251,7 @@ router.get(ROUTE_RAW_DATA, function(req, res) {
 
 // Query is a combination of partials. When all completed, return response.
 function partialCompleted(pokemon, pokestops, gyms, res, response) {
-    if (pokemon && pokestops /* TODO: && gyms */)
+    if (pokemon && pokestops && gyms)
         return res.json(response);
 }
 
@@ -253,7 +283,7 @@ function parseGetParam(param, defaultVal) {
 
     // Make sure single values adhere to defaultVal type.
     if (defaultVal instanceof Array && typeof val === 'string')
-        val = [ val ];
+        val = [val];
 
     // No empty values should be left over.
     if (val instanceof Array) {

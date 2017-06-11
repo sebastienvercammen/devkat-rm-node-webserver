@@ -11,7 +11,7 @@ var isEmpty = utils.isEmpty;
 
 
 /* Settings. */
-const POKESTOP_LIMIT_PER_QUERY = parseInt(process.env.POKESTOP_LIMIT_PER_QUERY) || 1000;
+const GYM_LIMIT_PER_QUERY = parseInt(process.env.GYM_LIMIT_PER_QUERY) || 1000;
 
 
 /* Helpers. */
@@ -26,29 +26,19 @@ function prepareQueryOptions(options) {
     var oNeLat = options.oNeLat;
     var oNeLng = options.oNeLng;
     var timestamp = options.timestamp || false;
-    var lured = options.lured || false;
 
     // Query options.
-    var pokestop_options = {
-        attributes: [
-            'active_fort_modifier',
-            'enabled',
-            'latitude',
-            'longitude',
-            'last_modified',
-            'lure_expiration',
-            'pokestop_id'
-        ],
-        limit: POKESTOP_LIMIT_PER_QUERY
+    var gym_options = {
+        limit: GYM_LIMIT_PER_QUERY
     };
 
     // If no viewport, defaults.
     if (isEmpty(swLat) || isEmpty(swLng) || isEmpty(neLat) || isEmpty(neLng)) {
-        return pokestop_options;
+        return gym_options;
     }
 
     // After this point, viewport is always defined.
-    pokestop_options.where = {
+    gym_options.where = {
         latitude: {
             $gte: swLat,
             $lte: neLat
@@ -59,30 +49,23 @@ function prepareQueryOptions(options) {
         }
     };
 
-    // If timestamp is known, only load modified Pokéstops.
+    // If timestamp is known, only load updated Gyms.
     if (timestamp !== false) {
         // Change POSIX timestamp to UTC time.
         timestamp = new Date(timestamp).getTime();
 
-        pokestop_options.where.last_updated = {
+        gym_options.where.last_scanned = {
             $gt: timestamp
         };
 
-        return pokestop_options;
+        return gym_options;
     }
 
-    // Lured stops.
-    if (lured) {
-        pokestop_options.where.active_fort_modifier = {
-            $ne: null
-        };
-    }
-
-    // Send Pokéstops in view but exclude those within old boundaries.
+    // Send Gyms in view but exclude those within old boundaries.
     if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
-        pokestop_options.where = {
+        gym_options.where = {
             $and: [
-                pokestop_options.where,
+                gym_options.where,
                 {
                     $not: {
                         latitude: {
@@ -99,7 +82,7 @@ function prepareQueryOptions(options) {
         };
     }
 
-    return pokestop_options;
+    return gym_options;
 }
 
 
@@ -107,10 +90,22 @@ function prepareQueryOptions(options) {
 
 module.exports = function (sequelize, DataTypes) {
     // Sequelize model definition.
-    var Pokestop = sequelize.define('Pokestop', {
-        pokestop_id: {
+    var Gym = sequelize.define('Gym', {
+        gym_id: {
             type: DataTypes.STRING(50),
             primaryKey: true
+        },
+        team_id: {
+            type: 'SMALLINT',
+            allowNull: false
+        },
+        guard_pokemon_id: {
+            type: 'SMALLINT',
+            allowNull: false
+        },
+        gym_points: {
+            type: DataTypes.INTEGER,
+            allowNull: false
         },
         enabled: {
             type: DataTypes.BOOLEAN,
@@ -128,17 +123,7 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.DATE,
             allowNull: false
         },
-        lure_expiration: {
-            type: DataTypes.DATE,
-            allowNull: true,
-            defaultValue: null
-        },
-        active_fort_modifier: {
-            type: DataTypes.STRING(50),
-            allowNull: true,
-            defaultValue: null
-        },
-        last_updated: {
+        last_scanned: {
             type: DataTypes.DATE,
             allowNull: true,
             defaultValue: null
@@ -146,29 +131,19 @@ module.exports = function (sequelize, DataTypes) {
     }, {
         timestamps: false,
         freezeTableName: true,
-        tableName: 'pokestop',
+        tableName: 'gym',
         indexes: [{
-                name: 'pokestop_last_modified',
+                name: 'gym_last_modified',
                 method: 'BTREE',
                 fields: ['last_modified']
             },
             {
-                name: 'pokestop_lure_expiration',
+                name: 'gym_last_scanned',
                 method: 'BTREE',
-                fields: ['lure_expiration']
+                fields: ['last_scanned']
             },
             {
-                name: 'pokestop_active_fort_modifier',
-                method: 'BTREE',
-                fields: ['active_fort_modifier']
-            },
-            {
-                name: 'pokestop_last_updated',
-                method: 'BTREE',
-                fields: ['last_updated']
-            },
-            {
-                name: 'pokestop_latitude_longitude',
+                name: 'gym_latitude_longitude',
                 method: 'BTREE',
                 fields: ['latitude', 'longitude']
             }
@@ -177,10 +152,10 @@ module.exports = function (sequelize, DataTypes) {
 
     /* Methods. */
 
-    // Get active Pokéstops by coords or timestamp.
-    Pokestop.get_stops = function (swLat, swLng, neLat, neLng, lured, timestamp, oSwLat, oSwLng, oNeLat, oNeLng) {
+    // Get active Gyms by coords or timestamp.
+    Gym.get_gyms = function (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng) {
         // Prepare query.
-        var pokestop_options = prepareQueryOptions({
+        var gym_options = prepareQueryOptions({
             'swLat': swLat,
             'swLng': swLng,
             'neLat': neLat,
@@ -189,13 +164,12 @@ module.exports = function (sequelize, DataTypes) {
             'oSwLng': oSwLng,
             'oNeLat': oNeLat,
             'oNeLng': oNeLng,
-            'lured': lured,
             'timestamp': timestamp
         });
 
         // Return promise.
-        return Pokestop.findAll(pokestop_options);
+        return Gym.findAll(gym_options);
     };
 
-    return Pokestop;
+    return Gym;
 };

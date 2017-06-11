@@ -1,13 +1,18 @@
-"use strict";
+'use strict';
 
 // Parse config.
 require('dotenv').config();
 
-var utils = require('../inc/utils.js');
+const utils = require('../inc/utils.js');
+const pokedex = require('../data/pokedex/pokemon.json');
 
 
-/* Readability. */
-var isEmpty = utils.isEmpty;
+/* Readability references. */
+const isEmpty = utils.isEmpty;
+const getPokemonData = utils.pokemon.getPokemonData;
+const getPokemonName = utils.pokemon.getPokemonName;
+const getPokemonRarity = utils.pokemon.getPokemonRarity;
+const getPokemonTypes = utils.pokemon.getPokemonTypes;
 
 
 /* Settings. */
@@ -198,7 +203,7 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.VIRTUAL,
             defaultValue: '',
             get() {
-                return '';
+                return getPokemonName(this.getDataValue('pokemon_id'));
             }
         },
         pokemon_rarity: {
@@ -206,14 +211,14 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
             defaultValue: null,
             get() {
-                return null;
+                return getPokemonRarity(this.getDataValue('pokemon_id'));
             }
         },
         pokemon_types: {
             type: DataTypes.VIRTUAL,
             defaultValue: [],
             get() {
-                return [];
+                return getPokemonTypes(this.getDataValue('pokemon_id'));
             }
         }
     }, {

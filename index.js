@@ -29,8 +29,6 @@ var cluster = require('cluster');
 var shuttingDown = false; // Are we shutting down?
 var online_workers = {}; // Status per worker PID.
 
-//var pokeList = require('./inc/container.js');
-
 
 /* Settings. */
 
