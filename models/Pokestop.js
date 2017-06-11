@@ -77,7 +77,7 @@ function prepareQueryOptions(options) {
                 `),
             'distance'
         ]
-    ]);
+    ];
 
 pokestop_options.order.push(Sequelize.literal('`distance` ASC'));
 
