@@ -23,7 +23,7 @@ var con = require('manakin').global;
 con.setBright();
 
 var cluster = require('cluster');
-var utils = require('../inc/utils.js');
+var utils = require('./inc/utils.js');
 var shuttingDown = false; // Are we shutting down?
 var online_workers = {}; // Status per worker PID.
 
