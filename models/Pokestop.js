@@ -31,17 +31,7 @@ function prepareQueryOptions(options) {
 
     // Query options.
     var pokestop_options = {
-        attributes: {
-            include: [
-                'active_fort_modifier',
-                'enabled',
-                'latitude',
-                'longitude',
-                'last_modified',
-                'lure_expiration',
-                'pokestop_id'
-            ]
-        },
+        attributes: {},
         limit: POKESTOP_LIMIT_PER_QUERY,
         order: []
     };
