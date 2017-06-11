@@ -235,7 +235,7 @@ router.get(ROUTE_RAW_DATA, function (req, res) {
                     }).catch(utils.handle_error);
                 } else {
                     // Unchanged viewport.
-                    return foundGyms(pokestops);
+                    return foundGyms(gyms);
                 }
             }).catch(utils.handle_error);
         }
