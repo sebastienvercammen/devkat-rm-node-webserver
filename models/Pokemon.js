@@ -3,6 +3,7 @@
 // Parse config.
 require('dotenv').config();
 
+const Sequelize = require('sequelize');
 const utils = require('../inc/utils.js');
 const pokedex = require('../data/pokedex/pokemon.json');
 
@@ -71,7 +72,7 @@ function prepareQueryOptions(options) {
         poke_options.attributes.include = [
             [
                 // Calculate distance from middle point in viewport w/ MySQL.
-                sequelize.literal(`
+                Sequelize.literal(`
                     3959 * 
                     acos(cos(radians(` + middle_point_lat + `)) * 
                     cos(radians(\`latitude\`)) * 
@@ -84,7 +85,7 @@ function prepareQueryOptions(options) {
             ]
         ];
 
-        poke_options.order.push(['distance', 'ASC']);
+        poke_options.order.push(Sequelize.literal('`distance` ASC'));
     }
 
     // Avoid Sequelize translating an empty list to "NOT IN (NULL)".

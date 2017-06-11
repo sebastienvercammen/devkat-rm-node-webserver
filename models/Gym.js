@@ -3,11 +3,12 @@
 // Parse config.
 require('dotenv').config();
 
-var utils = require('../inc/utils.js');
+const Sequelize = require('sequelize');
+const utils = require('../inc/utils.js');
 
 
 /* Readability references. */
-var isEmpty = utils.isEmpty;
+const isEmpty = utils.isEmpty;
 
 
 /* Settings. */
@@ -63,7 +64,7 @@ function prepareQueryOptions(options) {
     gym_options.attributes.include = [
         [
             // Calculate distance from middle point in viewport w/ MySQL.
-            sequelize.literal(`
+            Sequelize.literal(`
                 3959 * 
                 acos(cos(radians(` + middle_point_lat + `)) * 
                 cos(radians(\`latitude\`)) * 
@@ -76,7 +77,7 @@ function prepareQueryOptions(options) {
         ]
     ];
 
-    gym_options.order.push(['distance', 'ASC']);
+    gym_options.order.push(Sequelize.literal('`distance` ASC'));
 
     // If timestamp is known, only load updated Gyms.
     if (timestamp !== false) {

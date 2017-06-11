@@ -3,7 +3,8 @@
 // Parse config.
 require('dotenv').config();
 
-var utils = require('../inc/utils.js');
+const Sequelize = require('sequelize');
+const utils = require('../inc/utils.js');
 
 
 /* Readability references. */
@@ -73,7 +74,7 @@ function prepareQueryOptions(options) {
     pokestop_options.attributes.include = [
         [
             // Calculate distance from middle point in viewport w/ MySQL.
-            sequelize.literal(`
+            Sequelize.literal(`
                 3959 * 
                 acos(cos(radians(` + middle_point_lat + `)) * 
                 cos(radians(\`latitude\`)) * 
@@ -86,7 +87,7 @@ function prepareQueryOptions(options) {
         ]
     ];
 
-    pokestop_options.order.push(['distance', 'ASC']);
+    pokestop_options.order.push(Sequelize.literal('`distance` ASC'));
 
     // If timestamp is known, only load modified Pokéstops.
     if (timestamp !== false) {
