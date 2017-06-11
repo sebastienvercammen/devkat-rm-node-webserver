@@ -218,7 +218,7 @@ router.get(ROUTE_RAW_DATA, function (req, res) {
 
             return partialCompleted(completed_pokemon, completed_pokestops, completed_gyms, res, response);
         };
-        
+
         // First query from client?
         if (!last_gyms) {
             Gym.get_gyms(swLat, swLng, neLat, neLng).then(foundGyms).catch(utils.handle_error);

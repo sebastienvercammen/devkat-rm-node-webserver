@@ -51,6 +51,6 @@ sequelize.authenticate().catch(utils.handle_error);
 
 /* Exports. */
 
-module.exports.getInstance = function() {
+module.exports.getInstance = function () {
     return sequelize;
 };

@@ -61,13 +61,13 @@ function prepareQueryOptions(options) {
         /*
          * If we have a viewport, use distance ordering.
          */
-        
+
         // Center of viewport.
         var viewport_width = neLng - swLng;
         var viewport_height = neLat - swLat;
         var middle_point_lat = neLat - (viewport_height / 2);
         var middle_point_lng = neLng - (viewport_width / 2);
-        
+
         poke_options.attributes.include = [
             [
                 // Calculate distance from middle point in viewport w/ MySQL.
@@ -83,7 +83,7 @@ function prepareQueryOptions(options) {
                 'distance'
             ]
         ];
-        
+
         poke_options.order.push(['distance', 'ASC']);
     }
 

@@ -55,14 +55,14 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
     }
 
     // Worker is online, but not yet ready to handle requests.
-    cluster.on('online', function(worker) {
+    cluster.on('online', function (worker) {
         if (DEBUG) {
             console.log('Worker %s (PID %s) is starting...', worker.id, worker.process.pid);
         }
     });
 
     // Worker is ded :(
-    cluster.on('exit', function(worker, code, signal) {
+    cluster.on('exit', function (worker, code, signal) {
         let id = worker.id;
         let pid = worker.process.pid;
 
@@ -86,11 +86,11 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
 
         if (DEBUG) {
             console.error('Worker %s died with code %s, and signal %s.', pid, code, signal);
-            
+
             if (AUTORESTART_WORKERS)
                 console.log('Starting a new worker.');
         }
-        
+
         // Start new worker if autorestart is enabled.
         if (AUTORESTART_WORKERS)
             cluster.fork();
@@ -148,7 +148,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
         // Run code when all workers are dead w/o starving CPU.
         function waitUntilAllWorkersDied(workers, interval, callback) {
             if (!allWorkersDied(workers)) {
-                setTimeout(function() {
+                setTimeout(function () {
                     waitUntilAllWorkersDied(workers, interval, callback);
                 }, interval);
             } else {
@@ -185,7 +185,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
     }
 
     // Middleware which blocks requests when we're too busy.
-    app.use(function(req, res, next) {
+    app.use(function (req, res, next) {
         if (toobusy()) {
             res.sendStatus(503);
         } else {
@@ -193,7 +193,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
         }
     });
 
-    toobusy.onLag(function(currentLag) {
+    toobusy.onLag(function (currentLag) {
         currentLag = Math.round(currentLag);
 
         if (DEBUG) {
@@ -209,7 +209,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
     /* App. */
 
     // Workers can share any TCP connection.
-    var server = app.listen(WEB_PORT, WEB_HOST, function() {
+    var server = app.listen(WEB_PORT, WEB_HOST, function () {
         if (DEBUG) {
             if (ENABLE_CLUSTER) {
                 console.success('Worker %s (PID %s) is listening on %s:%s.', cluster.worker.id, process.pid, WEB_HOST, WEB_PORT);
@@ -217,7 +217,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
                 console.success('Server (PID %s) is listening on %s:%s.', process.pid, WEB_HOST, WEB_PORT);
             }
         }
-        
+
         if (ENABLE_CLUSTER) {
             // We're online. Let's tell our master.
             process.send({
@@ -234,22 +234,22 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
         // Calling .shutdown allows your process to exit normally.
         toobusy.shutdown();
         server.close();
-        
+
         if (ENABLE_CLUSTER) {
             console.success('Gracefully closed worker %s (PID %s).', cluster.worker.id, process.pid);
         } else {
             console.success('Gracefully closed server (PID %s).', process.pid);
         }
-        
+
         process.exit(0);
     }
-    
+
     process.on('message', function workerMsg(msg) {
         if (msg === 'shutdown') {
             shutdownWorker();
         }
     });
-    
+
     // Handle graceful shutdown if we're not using cluster/process management.
     process.on('SIGINT', function gracefulWorker() {
         shutdownWorker();
