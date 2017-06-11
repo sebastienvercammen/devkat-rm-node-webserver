@@ -5,6 +5,7 @@
 
     TODO:
         - /raw_data.
+            - Send scanned location data.
             - Order sent items by distance to center of viewport, so even with
               a query limit, the client gets the items closest to its center.
             - Store initial viewpoint in memory.
