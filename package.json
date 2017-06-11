@@ -1,7 +1,7 @@
 {
   "name": "rm-node-webserver",
   "version": "1.0.0",
-  "description": "RocketMap webserver in Node.js as a replacement for python's Flask dev webserver.",
+  "description": "Microcomponent event-driven RocketMap webserver in Node.js as a replacement for python's Flask/werkzeug development webserver.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,9 +25,7 @@
     "compression": "^1.6.2",
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
-    "express-handlebars": "^3.0.0",
     "manakin": "^0.4.6",
-    "moment": "^2.18.1",
     "mysql": "^2.13.0",
     "sequelize": "^3.30.4",
     "sqlite3": "^3.1.8",

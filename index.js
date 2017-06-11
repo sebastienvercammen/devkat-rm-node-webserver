@@ -1,20 +1,16 @@
 /*
-    Async Node.js webserver w/ Express.js, Handlebars templating and
-    sequelize ORM for RocketMap. Supports gzip compression, load limiting
-    w/ toobusy-js and multiprocessing with cluster.
+    Async Node.js webserver w/ Express.js, sequelize ORM for RocketMap. 
+    Supports gzip compression, load limiting w/ toobusy-js and multiprocessing
+    with cluster.
 
     TODO:
         - /raw_data.
             - Order sent items by distance to center of viewport, so even with
               a query limit, the client gets the items closest to its center.
             - Store initial viewpoint in memory.
-            - Send gyms.
             - Stream results in chunks. Needs frontend JS rework.
-        - Move existing RM templates to Handlebars.
         - Global blacklist.
-        - Stats & mobile pages.
         - Search control.
-        - Gym data.
         - Manual captcha solving.
  */
 
