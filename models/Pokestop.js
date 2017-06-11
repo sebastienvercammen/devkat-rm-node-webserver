@@ -32,7 +32,7 @@ function prepareQueryOptions(options) {
     // Query options.
     var pokestop_options = {
         attributes: {
-            [
+            include: [
                 'active_fort_modifier',
                 'enabled',
                 'latitude',
