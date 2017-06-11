@@ -203,7 +203,6 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
 
     // Routes.
 
-    //app.use(require('./routes/general.js'));
     app.use(require('./routes/raw_data.js'));
     //app.use(require('./routes/captcha.js'));
 
