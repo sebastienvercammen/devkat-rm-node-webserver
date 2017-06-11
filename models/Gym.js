@@ -11,7 +11,7 @@ var isEmpty = utils.isEmpty;
 
 
 /* Settings. */
-const GYM_LIMIT_PER_QUERY = parseInt(process.env.GYM_LIMIT_PER_QUERY) || 1000;
+const GYM_LIMIT_PER_QUERY = parseInt(process.env.GYM_LIMIT_PER_QUERY) || 5000;
 
 
 /* Helpers. */
