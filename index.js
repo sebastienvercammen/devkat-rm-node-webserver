@@ -22,8 +22,13 @@ var con = require('manakin').global;
 con.setBright();
 
 var cluster = require('cluster');
+var utils = require('../inc/utils.js');
 var shuttingDown = false; // Are we shutting down?
 var online_workers = {}; // Status per worker PID.
+
+
+/* Readability references. */
+const fixWinSIGINT = utils.fixWinSIGINT;
 
 
 /* Settings. */
@@ -33,11 +38,15 @@ const GZIP = process.env.ENABLE_GZIP === 'true' || false;
 const WEB_HOST = process.env.WEB_HOST || '0.0.0.0';
 const WEB_PORT = parseInt(process.env.WEB_PORT) || 3000;
 const WEB_WORKERS = parseInt(process.env.WEB_WORKERS) || require('os').cpus().length;
+const ENABLE_CLUSTER = process.env.ENABLE_CLUSTER !== 'false' || false;
 const AUTORESTART_WORKERS = process.env.AUTORESTART_WORKERS !== 'false' || false;
 
 
+// If we're on Windows, fix the SIGINT event.
+fixWinSIGINT();
+
 // If we're the cluster master, manage our processes.
-if (cluster.isMaster) {
+if (ENABLE_CLUSTER && cluster.isMaster) {
     if (DEBUG) {
         console.log('Master cluster setting up %s workers...', WEB_WORKERS);
     }
@@ -108,18 +117,6 @@ if (cluster.isMaster) {
     });
 
     /* Graceful shutdown. */
-
-    // If we're on Windows, fix the SIGINT event.
-    if (process.platform === 'win32') {
-        require('readline')
-            .createInterface({
-                input: process.stdin,
-                output: process.stdout
-            })
-            .on('SIGINT', function() {
-                process.emit('SIGINT');
-            });
-    }
 
     process.on('SIGINT', function graceful() {
         shuttingDown = true;
@@ -216,27 +213,47 @@ if (cluster.isMaster) {
     // Workers can share any TCP connection.
     var server = app.listen(WEB_PORT, WEB_HOST, function() {
         if (DEBUG) {
-            console.success('Worker %s (PID %s) is listening on %s:%s.', cluster.worker.id, process.pid, WEB_HOST, WEB_PORT);
+            if (ENABLE_CLUSTER) {
+                console.success('Worker %s (PID %s) is listening on %s:%s.', cluster.worker.id, process.pid, WEB_HOST, WEB_PORT);
+            } else {
+                console.success('Server (PID %s) is listening on %s:%s.', process.pid, WEB_HOST, WEB_PORT);
+            }
         }
         
-        // We're online. Let's tell our master.
-        process.send({
-            'status': 'ONLINE',
-            'id': cluster.worker.id,
-            'pid': process.pid
-        });
+        if (ENABLE_CLUSTER) {
+            // We're online. Let's tell our master.
+            process.send({
+                'status': 'ONLINE',
+                'id': cluster.worker.id,
+                'pid': process.pid
+            });
+        }
     });
 
 
     /* Graceful worker shutdown. */
+    function shutdownWorker() {
+        // Calling .shutdown allows your process to exit normally.
+        toobusy.shutdown();
+        server.close();
+        
+        if (ENABLE_CLUSTER) {
+            console.success('Gracefully closed worker %s (PID %s).', cluster.worker.id, process.pid);
+        } else {
+            console.success('Gracefully closed server (PID %s).', process.pid);
+        }
+        
+        process.exit(0);
+    }
+    
     process.on('message', function workerMsg(msg) {
         if (msg === 'shutdown') {
-            // Calling .shutdown allows your process to exit normally.
-            toobusy.shutdown();
-            server.close();
-            
-            console.success('Gracefully closed worker %s (PID %s).', cluster.worker.id, process.pid);
-            process.exit(0);
+            shutdownWorker();
         }
+    });
+    
+    // Handle graceful shutdown if we're not using cluster/process management.
+    process.on('SIGINT', function gracefulWorker() {
+        shutdownWorker();
     });
 }

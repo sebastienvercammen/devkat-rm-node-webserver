@@ -203,7 +203,7 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.VIRTUAL,
             defaultValue: '',
             get() {
-                return getPokemonName(this.getDataValue('pokemon_id'));
+                return getPokemonName(pokedex, this.getDataValue('pokemon_id'));
             }
         },
         pokemon_rarity: {
@@ -211,14 +211,14 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
             defaultValue: null,
             get() {
-                return getPokemonRarity(this.getDataValue('pokemon_id'));
+                return getPokemonRarity(pokedex, this.getDataValue('pokemon_id'));
             }
         },
         pokemon_types: {
             type: DataTypes.VIRTUAL,
             defaultValue: [],
             get() {
-                return getPokemonTypes(this.getDataValue('pokemon_id'));
+                return getPokemonTypes(pokedex, this.getDataValue('pokemon_id'));
             }
         }
     }, {

@@ -1,6 +1,10 @@
 # Node.js devkat Webserver for RocketMap
 
-An asynchronous Node.js webserver on Express.js that uses Handlebars for templating (with enabled view caching), Sequelize for ORM, and that supports gzip compression, load limiting with toobusy-js and multiprocessing with cluster.
+An asynchronous Node.js webserver on Express.js that uses Sequelize for ORM and that supports gzip compression, load limiting with toobusy-js and multiprocessing (+ process management) with cluster.
+
+Since this webserver is meant to be set up as a managed microcomponent - not as a replacement webserver for static components - its functionality is strictly limited to serving dynamic data requests only. Using a more mature webserver to serve static components and as a reverse proxy is highly recommended (nginx on Linux, apache2 on Windows).
+
+If you want to use a more advanced process manager, we recommend [disabling cluster in your configuration](#disabling-process-management-with-cluster) to disable process management.
 
 ## Getting Started
 
@@ -88,11 +92,19 @@ DB_DATABASE=db_name
 ENABLE_GZIP=true
 ```
 
+#### Disabling process management with cluster
+
+**Note:** Disabling process management with cluster will automatically make the webserver ignore all configuration items related to multiprocessing/cluster.
+
+```
+ENABLE_CLUSTER=false
+```
+
 ## Using nginx as a reverse proxy to /raw_data
 
-If you're using nginx to serve your RocketMap website, make sure your nginx configuration looks like the example below to serve /raw_data with the new webserver, and all other paths with RocketMap's Flask.
+If you're using nginx to serve your RocketMap website, make sure your nginx configuration looks like the example below to serve /raw_data with the new webserver, and all other paths with RocketMap's Flask/werkzeug.
 
-This example assumes your RM Flask webserver is running on port 5000 and the devkat webserver on port 1337. Adjust accordingly.
+This example assumes your RM webserver is running on port 5000 and the devkat webserver on port 1337. Adjust accordingly.
 
 Based on [RocketMap's nginx example](http://rocketmap.readthedocs.io/en/develop/advanced-install/nginx.html).
 
@@ -112,4 +124,4 @@ server {
 
 ## License
 
-This project is licensed under a custom license - see the <LICENSE.md> file for details.
+This project is licensed under a custom license - see the [LICENSE.md](LICENSE.md) file for details.

@@ -13,6 +13,20 @@ var utils = {
         process.exit(1);
     },
 
+    // Fix SIGINT on Windows systems.
+    fixWinSIGINT: function () {
+        if (process.platform === 'win32') {
+            require('readline')
+                .createInterface({
+                    input: process.stdin,
+                    output: process.stdout
+                })
+                .on('SIGINT', function () {
+                    process.emit('SIGINT');
+                });
+        }
+    },
+
     // Readability methods.
     isUndefined: function (val) {
         return (typeof val === 'undefined');
@@ -77,7 +91,7 @@ utils.pokemon = {
         }
 
         return pokedex[id].types;
-    },
+    }
 };
 
 module.exports = utils;
