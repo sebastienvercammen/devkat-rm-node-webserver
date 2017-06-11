@@ -63,7 +63,7 @@ function prepareQueryOptions(options) {
     var middle_point_lat = neLat - (viewport_height / 2);
     var middle_point_lng = neLng - (viewport_width / 2);
 
-    pokestop_options.attributes.include.push([
+    pokestop_options.attributes.include = [
         [
             // Calculate distance from middle point in viewport w/ MySQL.
             Sequelize.literal(`
@@ -79,49 +79,49 @@ function prepareQueryOptions(options) {
         ]
     ]);
 
-    pokestop_options.order.push(Sequelize.literal('`distance` ASC'));
+pokestop_options.order.push(Sequelize.literal('`distance` ASC'));
 
-    // If timestamp is known, only load modified Pokéstops.
-    if (timestamp !== false) {
-        // Change POSIX timestamp to UTC time.
-        timestamp = new Date(timestamp).getTime();
+// If timestamp is known, only load modified Pokéstops.
+if (timestamp !== false) {
+    // Change POSIX timestamp to UTC time.
+    timestamp = new Date(timestamp).getTime();
 
-        pokestop_options.where.last_updated = {
-            $gt: timestamp
-        };
-
-        return pokestop_options;
-    }
-
-    // Lured stops.
-    if (lured) {
-        pokestop_options.where.active_fort_modifier = {
-            $ne: null
-        };
-    }
-
-    // Send Pokéstops in view but exclude those within old boundaries.
-    if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
-        pokestop_options.where = {
-            $and: [
-                pokestop_options.where,
-                {
-                    $not: {
-                        latitude: {
-                            $gte: oSwLat,
-                            $lte: oNeLat
-                        },
-                        longitude: {
-                            $gte: oSwLng,
-                            $lte: oNeLng
-                        }
-                    }
-                }
-            ]
-        };
-    }
+    pokestop_options.where.last_updated = {
+        $gt: timestamp
+    };
 
     return pokestop_options;
+}
+
+// Lured stops.
+if (lured) {
+    pokestop_options.where.active_fort_modifier = {
+        $ne: null
+    };
+}
+
+// Send Pokéstops in view but exclude those within old boundaries.
+if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
+    pokestop_options.where = {
+        $and: [
+            pokestop_options.where,
+            {
+                $not: {
+                    latitude: {
+                        $gte: oSwLat,
+                        $lte: oNeLat
+                    },
+                    longitude: {
+                        $gte: oSwLng,
+                        $lte: oNeLng
+                    }
+                }
+            }
+        ]
+    };
+}
+
+return pokestop_options;
 }
 
 
