@@ -31,15 +31,17 @@ function prepareQueryOptions(options) {
 
     // Query options.
     var pokestop_options = {
-        attributes: [
-            'active_fort_modifier',
-            'enabled',
-            'latitude',
-            'longitude',
-            'last_modified',
-            'lure_expiration',
-            'pokestop_id'
-        ],
+        attributes: {
+            [
+                'active_fort_modifier',
+                'enabled',
+                'latitude',
+                'longitude',
+                'last_modified',
+                'lure_expiration',
+                'pokestop_id'
+            ]
+        },
         limit: POKESTOP_LIMIT_PER_QUERY,
         order: []
     };
@@ -71,7 +73,7 @@ function prepareQueryOptions(options) {
     var middle_point_lat = neLat - (viewport_height / 2);
     var middle_point_lng = neLng - (viewport_width / 2);
 
-    pokestop_options.attributes.include = [
+    pokestop_options.attributes.include.push([
         [
             // Calculate distance from middle point in viewport w/ MySQL.
             Sequelize.literal(`
@@ -85,7 +87,7 @@ function prepareQueryOptions(options) {
                 `),
             'distance'
         ]
-    ];
+    ]);
 
     pokestop_options.order.push(Sequelize.literal('`distance` ASC'));
 

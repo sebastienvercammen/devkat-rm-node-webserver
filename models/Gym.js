@@ -30,6 +30,7 @@ function prepareQueryOptions(options) {
 
     // Query options.
     var gym_options = {
+        attributes: {},
         limit: GYM_LIMIT_PER_QUERY,
         order: []
     };
