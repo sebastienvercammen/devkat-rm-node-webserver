@@ -37,6 +37,7 @@ const GZIP = process.env.ENABLE_GZIP === 'true' || false;
 const WEB_HOST = process.env.WEB_HOST || '0.0.0.0';
 const WEB_PORT = parseInt(process.env.WEB_PORT) || 3000;
 const WEB_WORKERS = parseInt(process.env.WEB_WORKERS) || require('os').cpus().length;
+const ENABLE_LOAD_LIMITER = process.env.ENABLE_LOAD_LIMITER !== 'false' || false;
 const ENABLE_CLUSTER = process.env.ENABLE_CLUSTER !== 'false' || false;
 const AUTORESTART_WORKERS = process.env.AUTORESTART_WORKERS !== 'false' || false;
 
@@ -176,21 +177,23 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
     }
 
     // Middleware which blocks requests when we're too busy.
-    app.use(function (req, res, next) {
-        if (toobusy()) {
-            res.sendStatus(503);
-        } else {
-            next();
-        }
-    });
-
-    toobusy.onLag(function (currentLag) {
-        currentLag = Math.round(currentLag);
-
-        if (DEBUG) {
-            console.error('[%s] Event loop lag detected! Latency: %sms.', process.pid, currentLag);
-        }
-    });
+    if (ENABLE_LOAD_LIMITER) {
+        app.use(function (req, res, next) {
+            if (toobusy()) {
+                res.sendStatus(503);
+            } else {
+                next();
+            }
+        });
+        
+        toobusy.onLag(function (currentLag) {
+            currentLag = Math.round(currentLag);
+    
+            if (DEBUG) {
+                console.error('[%s] Event loop lag detected! Latency: %sms.', process.pid, currentLag);
+            }
+        });
+    }
 
     // Routes.
 
@@ -222,8 +225,11 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
 
     /* Graceful worker shutdown. */
     function shutdownWorker() {
-        // Calling .shutdown allows your process to exit normally.
-        toobusy.shutdown();
+        if (ENABLE_LOAD_LIMITER) {
+            // Calling .shutdown allows your process to exit normally.
+            toobusy.shutdown();
+        }
+        
         server.close();
 
         if (ENABLE_CLUSTER) {
