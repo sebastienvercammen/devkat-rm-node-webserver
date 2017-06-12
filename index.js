@@ -165,19 +165,10 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
     // We're a worker, prepare to handle requests.
     let toobusy = require('toobusy-js');
     let express = require('express');
-    let exphbs = require('express-handlebars');
     let compression = require('compression');
     let app = express();
 
     /* Routing. */
-
-    // Express.js.
-    app.use(express.static('public'));
-    app.engine('handlebars', exphbs({
-        defaultLayout: 'main'
-    }));
-    app.set('view engine', 'handlebars');
-    app.enable('view cache');
 
     // Optionally enable gzip compression.
     if (GZIP) {
