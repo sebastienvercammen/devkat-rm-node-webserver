@@ -35,7 +35,7 @@ var sequelize = new Sequelize(DB_DATABASE, DB_USER, DB_PASS, {
     host: DB_HOST,
     port: DB_PORT,
     dialect: DB_TYPE,
-    logging: DEBUG,
+    logging: (DEBUG) ? console.log : false,
 
     pool: {
         min: DB_POOL_MIN_SIZE,
