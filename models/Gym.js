@@ -6,6 +6,9 @@ require('dotenv').config();
 const Sequelize = require('sequelize');
 const utils = require('../inc/utils.js');
 
+var db = require('../inc/database.js').getInstance();
+var Raid = db.model('Raid');
+
 
 /* Readability references. */
 const isEmpty = utils.isEmpty;
@@ -32,7 +35,11 @@ function prepareQueryOptions(options) {
     var gym_options = {
         attributes: {},
         limit: GYM_LIMIT_PER_QUERY,
-        order: []
+        order: [],
+        include: [{
+            model: Raid,
+            required: false
+        }]
     };
 
     // If no viewport, defaults.
@@ -66,12 +73,12 @@ function prepareQueryOptions(options) {
         [
             // Calculate distance from middle point in viewport w/ MySQL.
             Sequelize.literal(`
-                3959 * 
-                acos(cos(radians(` + middle_point_lat + `)) * 
-                cos(radians(\`latitude\`)) * 
-                cos(radians(\`longitude\`) - 
-                radians(` + middle_point_lng + `)) + 
-                sin(radians(` + middle_point_lat + `)) * 
+                3959 *
+                acos(cos(radians(` + middle_point_lat + `)) *
+                cos(radians(\`latitude\`)) *
+                cos(radians(\`longitude\`) -
+                radians(` + middle_point_lng + `)) +
+                sin(radians(` + middle_point_lat + `)) *
                 sin(radians(\`latitude\`)))
                 `),
             'distance'
@@ -119,7 +126,7 @@ function prepareQueryOptions(options) {
 
 /* Model. */
 
-module.exports = function (sequelize, DataTypes) {
+module.exports = function(sequelize, DataTypes) {
     // Sequelize model definition.
     var Gym = sequelize.define('Gym', {
         gym_id: {
@@ -188,7 +195,7 @@ module.exports = function (sequelize, DataTypes) {
     /* Methods. */
 
     // Get active Gyms by coords or timestamp.
-    Gym.get_gyms = function (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng) {
+    Gym.get_gyms = function(swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng) {
         // Prepare query.
         var gym_options = prepareQueryOptions({
             'swLat': swLat,

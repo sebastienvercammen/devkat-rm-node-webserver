@@ -5,81 +5,15 @@ require('dotenv').config();
 
 const Sequelize = require('sequelize');
 const utils = require('../inc/utils.js');
+const pokedex = require('../data/pokedex/pokemon.json');
+
+var db = require('../inc/database.js').getInstance();
 
 
 /* Readability references. */
 const isEmpty = utils.isEmpty;
-
-
-/* Helpers. */
-function prepareQueryOptions(options) {
-    // Parse options.
-    var swLat = options.swLat;
-    var swLng = options.swLng;
-    var neLat = options.neLat;
-    var neLng = options.neLng;
-    var oSwLat = options.oSwLat;
-    var oSwLng = options.oSwLng;
-    var oNeLat = options.oNeLat;
-    var oNeLng = options.oNeLng;
-    var timestamp = options.timestamp || false;
-
-    // Query options.
-    var raid_options = {
-        attributes: {},
-        order: []
-    };
-
-    // If no viewport, defaults.
-    if (isEmpty(swLat) || isEmpty(swLng) || isEmpty(neLat) || isEmpty(neLng)) {
-        return raid_options;
-    }
-
-    // After this point, viewport is always defined.
-    raid_options.where = {
-        latitude: {
-            $gte: swLat,
-            $lte: neLat
-        },
-        longitude: {
-            $gte: swLng,
-            $lte: neLng
-        }
-    };
-
-    // If timestamp is known, only load updated Raids.
-    if (timestamp !== false) {
-        // Change POSIX timestamp to UTC time.
-        timestamp = new Date(timestamp).getTime();
-
-        raid_options.where.last_scanned = {
-            $gt: timestamp
-        };
-    }
-
-    // Send Raids in view but exclude those within old boundaries.
-    if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
-        raid_options.where = {
-            $and: [
-                raid_options.where,
-                {
-                    $not: {
-                        latitude: {
-                            $gte: oSwLat,
-                            $lte: oNeLat
-                        },
-                        longitude: {
-                            $gte: oSwLng,
-                            $lte: oNeLng
-                        }
-                    }
-                }
-            ]
-        };
-    }
-
-    return raid_options;
-}
+const getPokemonName = utils.pokemon.getPokemonName;
+const getPokemonTypes = utils.pokemon.getPokemonTypes;
 
 
 /* Model. */
@@ -127,6 +61,22 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.DATE,
             allowNull: true,
             defaultValue: null
+        },
+        // TODO: Move this from RM stock backend to frontend.
+        // These are unnecessary VIRTUAL fields.
+        pokemon_name: {
+            type: DataTypes.VIRTUAL,
+            defaultValue: '',
+            get() {
+                return getPokemonName(pokedex, this.getDataValue('pokemon_id'));
+            }
+        },
+        pokemon_types: {
+            type: DataTypes.VIRTUAL,
+            defaultValue: [],
+            get() {
+                return getPokemonTypes(pokedex, this.getDataValue('pokemon_id'));
+            }
         }
     }, {
         timestamps: false,

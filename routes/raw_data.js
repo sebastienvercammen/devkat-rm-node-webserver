@@ -6,9 +6,6 @@ var express = require('express');
 var router = express.Router();
 
 var db = require('../inc/database.js').getInstance();
-var Pokemon = db.import('../models/Pokemon.js');
-var Pokestop = db.import('../models/Pokestop.js');
-var Gym = db.import('../models/Gym.js');
 
 
 /* Readability. */

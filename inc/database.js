@@ -52,6 +52,15 @@ console.log('[%s] Testing database connection...', process.pid);
 sequelize.authenticate().catch(utils.handle_error);
 
 
+/* Model imports. */
+var Pokemon = sequelize.import('../models/Pokemon.js');
+var Pokestop = sequelize.import('../models/Pokestop.js');
+var Raid = sequelize.import('../models/Raid.js');
+var Gym = sequelize.import('../models/Gym.js');
+
+Raid.belongsTo(Gym, {foreignKey: 'gym_id', targetKey: 'gym_id'});
+
+
 /* Exports. */
 
 module.exports.getInstance = function () {
