@@ -6,7 +6,12 @@ var express = require('express');
 var router = express.Router();
 
 var db = require('../inc/database.js').getInstance();
+var Pokemon = db.model('Pokemon');
+var Pokestop = db.model('Pokestop');
+var Raid = db.model('Raid');
+var Gym = db.model('Gym');
 
+Raid.belongsTo(Gym, {foreignKey: 'gym_id', targetKey: 'gym_id'});
 
 /* Readability. */
 var isEmpty = utils.isEmpty;

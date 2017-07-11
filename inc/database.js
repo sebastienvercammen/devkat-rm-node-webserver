@@ -58,8 +58,6 @@ var Pokestop = sequelize.import('../models/Pokestop.js');
 var Raid = sequelize.import('../models/Raid.js');
 var Gym = sequelize.import('../models/Gym.js');
 
-Raid.belongsTo(Gym, {foreignKey: 'gym_id', targetKey: 'gym_id'});
-
 
 /* Exports. */
 
