@@ -134,8 +134,8 @@ module.exports = function (sequelize, DataTypes) {
             type: 'SMALLINT',
             allowNull: false
         },
-        gym_points: {
-            type: DataTypes.INTEGER,
+        slots_available: {
+            type: 'SMALLINT',
             allowNull: false
         },
         enabled: {
@@ -148,6 +148,10 @@ module.exports = function (sequelize, DataTypes) {
         },
         longitude: {
             type: DataTypes.DOUBLE,
+            allowNull: false
+        },
+        total_cp: {
+            type: 'SMALLINT',
             allowNull: false
         },
         last_modified: {
