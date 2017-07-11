@@ -6,8 +6,7 @@ require('dotenv').config();
 const Sequelize = require('sequelize');
 const utils = require('../inc/utils.js');
 
-var db = require('../inc/database.js').getInstance();
-var Raid = db.model('Raid');
+var database = require('../inc/database.js');
 
 
 /* Readability references. */
@@ -20,6 +19,9 @@ const GYM_LIMIT_PER_QUERY = parseInt(process.env.GYM_LIMIT_PER_QUERY) || 5000;
 
 /* Helpers. */
 function prepareQueryOptions(options) {
+    db = database.getInstance();
+    var Raid = db.model('Raid');
+
     // Parse options.
     var swLat = options.swLat;
     var swLng = options.swLng;

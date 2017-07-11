@@ -7,8 +7,6 @@ const Sequelize = require('sequelize');
 const utils = require('../inc/utils.js');
 const pokedex = require('../data/pokedex/pokemon.json');
 
-var db = require('../inc/database.js').getInstance();
-
 
 /* Readability references. */
 const isEmpty = utils.isEmpty;
