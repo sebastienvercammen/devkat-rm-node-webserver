@@ -6,9 +6,6 @@ require('dotenv').config();
 const Sequelize = require('sequelize');
 const utils = require('../inc/utils.js');
 
-var models = require('../models');
-
-
 /* Readability references. */
 const isEmpty = utils.isEmpty;
 
@@ -18,7 +15,7 @@ const GYM_LIMIT_PER_QUERY = parseInt(process.env.GYM_LIMIT_PER_QUERY) || 5000;
 
 
 /* Helpers. */
-function prepareQueryOptions(options) {
+function prepareQueryOptions(models, options) {
     // Parse options.
     var swLat = options.swLat;
     var swLng = options.swLng;
@@ -188,16 +185,15 @@ module.exports = function (sequelize, DataTypes) {
                 method: 'BTREE',
                 fields: ['latitude', 'longitude']
             }
-        ],
-        classMethods: {
-            associate: function (models) {
-                Gym.hasOne(models.Raid, {
-                    foreignKey: 'gym_id',
-                    targetKey: 'gym_id'
-                });
-            }
-        }
+        ]
     });
+
+    Gym.associate = function (models) {
+        Gym.hasOne(models.Raid, {
+            foreignKey: 'gym_id',
+            targetKey: 'gym_id'
+        });
+    };
 
     /* Methods. */
 

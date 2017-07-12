@@ -21,7 +21,11 @@ module.exports = function (sequelize, DataTypes) {
     var Raid = sequelize.define('Raid', {
         gym_id: {
             type: DataTypes.STRING(50),
-            primaryKey: true
+            primaryKey: true,
+            references: {
+                model: sequelize.models.Gym,
+                key: 'gym_id'
+            }
         },
         level: {
             type: DataTypes.INTEGER,
@@ -105,16 +109,15 @@ module.exports = function (sequelize, DataTypes) {
                 method: 'BTREE',
                 fields: ['last_scanned']
             }
-        ],
-        classMethods: {
-            associate: function (models) {
-                Raid.belongsTo(models.Gym, {
-                    foreignKey: 'gym_id',
-                    targetKey: 'gym_id'
-                });
-            }
-        }
+        ]
     });
+    
+    Raid.associate = function (models) {
+        Raid.belongsTo(models.Gym, {
+            foreignKey: 'gym_id',
+            targetKey: 'gym_id'
+        });
+    };
 
     return Raid;
 };
