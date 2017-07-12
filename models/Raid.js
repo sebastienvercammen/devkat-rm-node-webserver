@@ -33,15 +33,27 @@ module.exports = function (sequelize, DataTypes) {
         },
         spawn: {
             type: DataTypes.DATE,
-            allowNull: false
+            allowNull: false,
+            get() {
+                var date = new Date(this.getDataValue('spawn'));
+                return date.getTime();
+            }
         },
         start: {
             type: DataTypes.DATE,
-            allowNull: false
+            allowNull: false,
+            get() {
+                var date = new Date(this.getDataValue('start'));
+                return date.getTime();
+            }
         },
         end: {
             type: DataTypes.DATE,
-            allowNull: false
+            allowNull: false,
+            get() {
+                var date = new Date(this.getDataValue('end'));
+                return date.getTime();
+            }
         },
         pokemon_id: {
             type: 'SMALLINT',
@@ -62,7 +74,17 @@ module.exports = function (sequelize, DataTypes) {
         last_scanned: {
             type: DataTypes.DATE,
             allowNull: true,
-            defaultValue: null
+            defaultValue: null,
+            get() {
+                var last_scanned = this.getDataValue('last_scanned');
+                
+                if (last_scanned !== null) {
+                    let date = new Date(last_scanned);
+                    return date.getTime();
+                }
+                
+                return null;
+            }
         },
         // TODO: Move this from RM stock backend to frontend.
         // These are unnecessary VIRTUAL fields.
