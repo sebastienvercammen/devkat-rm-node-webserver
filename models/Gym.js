@@ -19,7 +19,7 @@ const GYM_LIMIT_PER_QUERY = parseInt(process.env.GYM_LIMIT_PER_QUERY) || 5000;
 
 
 /* Helpers. */
-function prepareQueryOptions(options) {
+function prepareQueryOptions(models, options) {
     // Parse options.
     var swLat = options.swLat;
     var swLng = options.swLng;
@@ -37,7 +37,7 @@ function prepareQueryOptions(options) {
         limit: GYM_LIMIT_PER_QUERY,
         order: [],
         include: [{
-            model: Raid,
+            model: models.Raid,
             required: false
         }]
     };
@@ -197,17 +197,18 @@ module.exports = function (sequelize, DataTypes) {
     // Get active Gyms by coords or timestamp.
     Gym.get_gyms = function (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng) {
         // Prepare query.
-        var gym_options = prepareQueryOptions({
-            'swLat': swLat,
-            'swLng': swLng,
-            'neLat': neLat,
-            'neLng': neLng,
-            'oSwLat': oSwLat,
-            'oSwLng': oSwLng,
-            'oNeLat': oNeLat,
-            'oNeLng': oNeLng,
-            'timestamp': timestamp
-        });
+        var gym_options = prepareQueryOptions(
+            sequelize.models, {
+                'swLat': swLat,
+                'swLng': swLng,
+                'neLat': neLat,
+                'neLng': neLng,
+                'oSwLat': oSwLat,
+                'oSwLng': oSwLng,
+                'oNeLat': oNeLat,
+                'oNeLng': oNeLng,
+                'timestamp': timestamp
+            });
 
         // Return promise.
         return Gym.findAll(gym_options);
