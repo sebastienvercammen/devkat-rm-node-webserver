@@ -5,13 +5,11 @@ var utils = require('../inc/utils.js');
 var express = require('express');
 var router = express.Router();
 
-var db = require('../inc/database.js').getInstance();
-var Pokemon = db.model('Pokemon');
-var Pokestop = db.model('Pokestop');
-var Raid = db.model('Raid');
-var Gym = db.model('Gym');
-
-Raid.belongsTo(Gym, {foreignKey: 'gym_id', targetKey: 'gym_id'});
+var models = require('../models');
+var Pokemon = models.Pokemon;
+var Pokestop = models.Pokestop;
+var Raid = models.Raid;
+var Gym = models.Gym;
 
 /* Readability. */
 var isEmpty = utils.isEmpty;

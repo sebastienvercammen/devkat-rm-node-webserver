@@ -6,7 +6,8 @@ require('dotenv').config();
 const Sequelize = require('sequelize');
 const utils = require('../inc/utils.js');
 
-var database = require('../inc/database.js');
+var models = require('../models');
+var Raid = models.Raid;
 
 
 /* Readability references. */
@@ -19,9 +20,6 @@ const GYM_LIMIT_PER_QUERY = parseInt(process.env.GYM_LIMIT_PER_QUERY) || 5000;
 
 /* Helpers. */
 function prepareQueryOptions(options) {
-    var db = database.getInstance();
-    var Raid = db.model('Raid');
-
     // Parse options.
     var swLat = options.swLat;
     var swLng = options.swLng;
@@ -128,7 +126,7 @@ function prepareQueryOptions(options) {
 
 /* Model. */
 
-module.exports = function(sequelize, DataTypes) {
+module.exports = function (sequelize, DataTypes) {
     // Sequelize model definition.
     var Gym = sequelize.define('Gym', {
         gym_id: {
@@ -197,7 +195,7 @@ module.exports = function(sequelize, DataTypes) {
     /* Methods. */
 
     // Get active Gyms by coords or timestamp.
-    Gym.get_gyms = function(swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng) {
+    Gym.get_gyms = function (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng) {
         // Prepare query.
         var gym_options = prepareQueryOptions({
             'swLat': swLat,

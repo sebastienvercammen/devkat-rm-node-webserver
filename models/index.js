@@ -1,12 +1,15 @@
 // Parse config.
 require('dotenv').config();
 
+// Imports.
+const fs = require('fs');
+const path = require('path');
+const Sequelize = require('sequelize');
+const utils = require('../inc/utils.js');
+
 // Log coloring.
 var con = require('manakin').global;
 con.setBright();
-
-var Sequelize = require('sequelize');
-var utils = require('./utils.js');
 
 
 /* Settings. */
@@ -28,6 +31,7 @@ const DB_FILE_PATH = process.env.DB_FILE_PATH || 'pogom.db';
 
 
 /* App. */
+var db = {};
 
 console.log('[%s] Connecting to database on %s:%s...', process.pid, DB_HOST, DB_PORT);
 
@@ -48,19 +52,29 @@ var sequelize = new Sequelize(DB_DATABASE, DB_USER, DB_PASS, {
 });
 
 console.log('[%s] Testing database connection...', process.pid);
-
 sequelize.authenticate().catch(utils.handle_error);
 
 
-/* Model imports. */
-var Pokemon = sequelize.import('../models/Pokemon.js');
-var Pokestop = sequelize.import('../models/Pokestop.js');
-var Raid = sequelize.import('../models/Raid.js');
-var Gym = sequelize.import('../models/Gym.js');
+/* Model imports & associations. */
+fs.readdirSync(__dirname)
+  .filter(function(file) {
+      return (file.indexOf(".") !== 0) && (file !== "index.js");
+  })
+  .forEach(function(file) {
+      var model = sequelize.import(path.join(__dirname, file));
+      db[model.name] = model;
+  });
+
+Object.keys(db).forEach(function(modelName) {
+    if (db[modelName].hasOwnProperty('associate')) {
+        db[modelName].associate(db);
+    }
+});
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
 
 /* Exports. */
 
-module.exports.getInstance = function () {
-    return sequelize;
-};
+module.exports = db;

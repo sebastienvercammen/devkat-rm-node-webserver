@@ -108,5 +108,12 @@ module.exports = function (sequelize, DataTypes) {
         ]
     });
 
+    Raid.associate = function (models) {
+        Raid.belongsTo(models.Gym, {
+            foreignKey: 'gym_id',
+            targetKey: 'gym_id'
+        });
+    };
+
     return Raid;
 };
