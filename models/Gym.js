@@ -34,7 +34,8 @@ function prepareQueryOptions(models, options) {
         order: [],
         include: [{
             model: models.Raid,
-            required: false
+            required: false,
+            as: 'raid'
         }]
     };
 
@@ -191,7 +192,8 @@ module.exports = function (sequelize, DataTypes) {
     Gym.associate = function (models) {
         Gym.hasOne(models.Raid, {
             foreignKey: 'gym_id',
-            targetKey: 'gym_id'
+            targetKey: 'gym_id',
+            as: 'raid'
         });
     };
 
