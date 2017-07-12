@@ -105,15 +105,16 @@ module.exports = function (sequelize, DataTypes) {
                 method: 'BTREE',
                 fields: ['last_scanned']
             }
-        ]
+        ],
+        classMethods: {
+            associate: function (models) {
+                Raid.belongsTo(models.Gym, {
+                    foreignKey: 'gym_id',
+                    targetKey: 'gym_id'
+                });
+            }
+        }
     });
-
-    Raid.associate = function (models) {
-        Raid.belongsTo(models.Gym, {
-            foreignKey: 'gym_id',
-            targetKey: 'gym_id'
-        });
-    };
 
     return Raid;
 };
