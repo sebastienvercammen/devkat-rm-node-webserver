@@ -166,6 +166,11 @@ module.exports = function (sequelize, DataTypes) {
             type: DataTypes.DATE,
             allowNull: true,
             defaultValue: null
+        },
+        // TODO: These are unnecessary VIRTUAL fields.
+        pokemon: {
+            type: DataTypes.VIRTUAL,
+            defaultValue: []
         }
     }, {
         timestamps: false,
