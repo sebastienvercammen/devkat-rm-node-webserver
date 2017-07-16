@@ -12,7 +12,7 @@ var isEmpty = utils.isEmpty;
 
 
 /* Settings. */
-const POKESTOP_LIMIT_PER_QUERY = parseInt(process.env.POKESTOP_LIMIT_PER_QUERY) || 5000;
+const POKESTOP_LIMIT_PER_QUERY = parseInt(process.env.POKESTOP_LIMIT_PER_QUERY) || 50000;
 
 
 /* Helpers. */

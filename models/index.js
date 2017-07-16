@@ -14,7 +14,7 @@ con.setBright();
 
 /* Settings. */
 
-const DEBUG = process.env.DEBUG === 'true' || false;
+const VERBOSE = process.env.VERBOSE === 'true' || false;
 
 const DB_TYPE = process.env.DB_TYPE || 'sqlite';
 const DB_HOST = process.env.DB_HOST || 'localhost';
@@ -39,7 +39,7 @@ var sequelize = new Sequelize(DB_DATABASE, DB_USER, DB_PASS, {
     host: DB_HOST,
     port: DB_PORT,
     dialect: DB_TYPE,
-    logging: (DEBUG) ? console.log : false,
+    logging: (VERBOSE) ? console.log : false,
 
     pool: {
         min: DB_POOL_MIN_SIZE,

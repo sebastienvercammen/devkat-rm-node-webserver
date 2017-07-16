@@ -68,8 +68,11 @@ node index.js
 #### Settings you must review
 
 ```
-# Enable or disable verbose console logging:
+# Enable or disable console logging.
 DEBUG=true
+
+# Enable or disable verbose logging (includes SQL queries).
+VERBOSE=false
 
 # Webserver host IP to bind to. 0.0.0.0 binds to all interfaces.
 WEB_HOST=0.0.0.0

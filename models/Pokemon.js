@@ -17,7 +17,7 @@ const getPokemonTypes = utils.pokemon.getPokemonTypes;
 
 
 /* Settings. */
-const POKEMON_LIMIT_PER_QUERY = parseInt(process.env.POKEMON_LIMIT_PER_QUERY) || 5000;
+const POKEMON_LIMIT_PER_QUERY = parseInt(process.env.POKEMON_LIMIT_PER_QUERY) || 50000;
 
 
 /* Helpers. */
