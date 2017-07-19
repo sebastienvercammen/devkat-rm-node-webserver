@@ -38,6 +38,8 @@ const WEB_HOST = process.env.WEB_HOST || '0.0.0.0';
 const WEB_PORT = parseInt(process.env.WEB_PORT) || 3000;
 const WEB_WORKERS = parseInt(process.env.WEB_WORKERS) || require('os').cpus().length;
 const ENABLE_LOAD_LIMITER = process.env.ENABLE_LOAD_LIMITER !== 'false' || false;
+const MAX_LAG_MS = parseInt(process.env.MAX_LAG_MS) || 250;
+const LAG_INTERVAL_MS = parseInt(process.env.LAG_INTERVAL_MS) || 500;
 const ENABLE_CLUSTER = process.env.ENABLE_CLUSTER !== 'false' || false;
 const AUTORESTART_WORKERS = process.env.AUTORESTART_WORKERS !== 'false' || false;
 
@@ -178,6 +180,9 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
 
     // Middleware which blocks requests when we're too busy.
     if (ENABLE_LOAD_LIMITER) {
+        toobusy.maxLag(MAX_LAG_MS);
+        toobusy.interval(LAG_INTERVAL_MS);
+
         app.use(function (req, res, next) {
             if (toobusy()) {
                 res.sendStatus(503);
