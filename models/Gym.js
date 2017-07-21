@@ -178,23 +178,7 @@ module.exports = function (sequelize, DataTypes) {
     }, {
         timestamps: false,
         freezeTableName: true,
-        tableName: 'gym',
-        indexes: [{
-                name: 'gym_last_modified',
-                method: 'BTREE',
-                fields: ['last_modified']
-            },
-            {
-                name: 'gym_last_scanned',
-                method: 'BTREE',
-                fields: ['last_scanned']
-            },
-            {
-                name: 'gym_latitude_longitude',
-                method: 'BTREE',
-                fields: ['latitude', 'longitude']
-            }
-        ]
+        tableName: 'gym'
     });
 
     Gym.associate = function (models) {

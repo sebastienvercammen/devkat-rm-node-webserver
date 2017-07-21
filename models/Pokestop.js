@@ -168,33 +168,7 @@ module.exports = function (sequelize, DataTypes) {
     }, {
         timestamps: false,
         freezeTableName: true,
-        tableName: 'pokestop',
-        indexes: [{
-                name: 'pokestop_last_modified',
-                method: 'BTREE',
-                fields: ['last_modified']
-            },
-            {
-                name: 'pokestop_lure_expiration',
-                method: 'BTREE',
-                fields: ['lure_expiration']
-            },
-            {
-                name: 'pokestop_active_fort_modifier',
-                method: 'BTREE',
-                fields: ['active_fort_modifier']
-            },
-            {
-                name: 'pokestop_last_updated',
-                method: 'BTREE',
-                fields: ['last_updated']
-            },
-            {
-                name: 'pokestop_latitude_longitude',
-                method: 'BTREE',
-                fields: ['latitude', 'longitude']
-            }
-        ]
+        tableName: 'pokestop'
     });
 
     /* Methods. */

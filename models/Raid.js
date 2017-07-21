@@ -105,33 +105,7 @@ module.exports = function (sequelize, DataTypes) {
     }, {
         timestamps: false,
         freezeTableName: true,
-        tableName: 'raid',
-        indexes: [{
-                name: 'raid_level',
-                method: 'BTREE',
-                fields: ['level']
-            },
-            {
-                name: 'raid_spawn',
-                method: 'BTREE',
-                fields: ['spawn']
-            },
-            {
-                name: 'raid_start',
-                method: 'BTREE',
-                fields: ['start']
-            },
-            {
-                name: 'raid_end',
-                method: 'BTREE',
-                fields: ['end']
-            },
-            {
-                name: 'raid_last_scanned',
-                method: 'BTREE',
-                fields: ['last_scanned']
-            }
-        ]
+        tableName: 'raid'
     });
     
     Raid.associate = function (models) {

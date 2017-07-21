@@ -266,33 +266,7 @@ module.exports = function (sequelize, DataTypes) {
     }, {
         timestamps: false,
         freezeTableName: true,
-        tableName: 'pokemon',
-        indexes: [{
-                name: 'pokemon_spawnpoint_id',
-                method: 'BTREE',
-                fields: ['spawnpoint_id']
-            },
-            {
-                name: 'pokemon_pokemon_id',
-                method: 'BTREE',
-                fields: ['pokemon_id']
-            },
-            {
-                name: 'pokemon_disappear_time',
-                method: 'BTREE',
-                fields: ['disappear_time']
-            },
-            {
-                name: 'pokemon_last_modified',
-                method: 'BTREE',
-                fields: ['last_modified']
-            },
-            {
-                name: 'pokemon_latitude_longitude',
-                method: 'BTREE',
-                fields: ['latitude', 'longitude']
-            }
-        ]
+        tableName: 'pokemon'
     });
 
     /* Methods. */
