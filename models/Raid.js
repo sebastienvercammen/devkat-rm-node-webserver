@@ -77,12 +77,12 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: null,
             get() {
                 var last_scanned = this.getDataValue('last_scanned');
-                
+
                 if (last_scanned !== null) {
-                    let date = new Date(last_scanned);
+                    const date = new Date(last_scanned);
                     return date.getTime();
                 }
-                
+
                 return null;
             }
         },
@@ -107,7 +107,7 @@ module.exports = function (sequelize, DataTypes) {
         freezeTableName: true,
         tableName: 'raid'
     });
-    
+
     Raid.associate = function (models) {
         Raid.belongsTo(models.Gym, {
             foreignKey: 'gym_id',

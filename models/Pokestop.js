@@ -79,49 +79,49 @@ function prepareQueryOptions(options) {
         ]
     ];
 
-pokestop_options.order.push(Sequelize.literal('`distance` ASC'));
+    pokestop_options.order.push(Sequelize.literal('`distance` ASC'));
 
-// If timestamp is known, only load modified Pokéstops.
-if (timestamp !== false) {
-    // Change POSIX timestamp to UTC time.
-    timestamp = new Date(timestamp).getTime();
+    // If timestamp is known, only load modified Pokéstops.
+    if (timestamp !== false) {
+        // Change POSIX timestamp to UTC time.
+        timestamp = new Date(timestamp).getTime();
 
-    pokestop_options.where.last_updated = {
-        $gt: timestamp
-    };
+        pokestop_options.where.last_updated = {
+            $gt: timestamp
+        };
 
-    return pokestop_options;
-}
+        return pokestop_options;
+    }
 
-// Lured stops.
-if (lured) {
-    pokestop_options.where.active_fort_modifier = {
-        $ne: null
-    };
-}
+    // Lured stops.
+    if (lured) {
+        pokestop_options.where.active_fort_modifier = {
+            $ne: null
+        };
+    }
 
-// Send Pokéstops in view but exclude those within old boundaries.
-if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
-    pokestop_options.where = {
-        $and: [
-            pokestop_options.where,
-            {
-                $not: {
-                    latitude: {
-                        $gte: oSwLat,
-                        $lte: oNeLat
-                    },
-                    longitude: {
-                        $gte: oSwLng,
-                        $lte: oNeLng
+    // Send Pokéstops in view but exclude those within old boundaries.
+    if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
+        pokestop_options.where = {
+            $and: [
+                pokestop_options.where,
+                {
+                    $not: {
+                        latitude: {
+                            $gte: oSwLat,
+                            $lte: oNeLat
+                        },
+                        longitude: {
+                            $gte: oSwLng,
+                            $lte: oNeLng
+                        }
                     }
                 }
-            }
-        ]
-    };
-}
+            ]
+        };
+    }
 
-return pokestop_options;
+    return pokestop_options;
 }
 
 

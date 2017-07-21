@@ -194,6 +194,16 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
             defaultValue: null
         },
+        cp: {
+            type: 'SMALLINT',
+            allowNull: true,
+            defaultValue: null
+        },
+        cp_multiplier: {
+            type: DataTypes.FLOAT,
+            allowNull: true,
+            defaultValue: null
+        },
         weight: {
             type: DataTypes.FLOAT,
             allowNull: true,
@@ -214,28 +224,18 @@ module.exports = function (sequelize, DataTypes) {
             allowNull: true,
             defaultValue: null
         },
-        cp: {
-            type: 'SMALLINT',
-            allowNull: true,
-            defaultValue: null
-        },
-        cp_multiplier: {
-            type: DataTypes.FLOAT,
-            allowNull: true,
-            defaultValue: null
-        },
         last_modified: {
             type: DataTypes.DATE,
             allowNull: true,
             defaultValue: null,
             get() {
                 var last_modified = this.getDataValue('last_modified');
-                
+
                 if (last_modified !== null) {
                     let date = new Date(last_modified);
                     return date.getTime();
                 }
-                
+
                 return null;
             }
         },
