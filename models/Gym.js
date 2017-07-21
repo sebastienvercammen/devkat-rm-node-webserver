@@ -205,7 +205,7 @@ module.exports = function (sequelize, DataTypes) {
     // Get active Gyms by coords or timestamp.
     Gym.get_gyms = function (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng) {
         // Prepare query.
-        var gym_options = prepareQueryOptions(
+        const gym_options = prepareQueryOptions(
             sequelize.models, {
                 'swLat': swLat,
                 'swLng': swLng,
@@ -217,6 +217,23 @@ module.exports = function (sequelize, DataTypes) {
                 'oNeLng': oNeLng,
                 'timestamp': timestamp
             });
+
+        // Return promise.
+        return Gym.findAll(gym_options);
+    };
+
+    // Get single Gym + Pokémon in Gym by ID.
+    Gym.get_gym = function (id) {
+        const gym_options = {
+            attributes: {},
+            limit: 1,
+            order: [],
+            include: [{
+                model: models.Raid,
+                required: false,
+                as: 'raid'
+            }]
+        };
 
         // Return promise.
         return Gym.findAll(gym_options);
