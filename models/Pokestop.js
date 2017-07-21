@@ -8,14 +8,17 @@ const utils = require('../inc/utils.js');
 
 
 /* Readability references. */
+
 var isEmpty = utils.isEmpty;
 
 
 /* Settings. */
+
 const POKESTOP_LIMIT_PER_QUERY = parseInt(process.env.POKESTOP_LIMIT_PER_QUERY) || 50000;
 
 
 /* Helpers. */
+
 function prepareQueryOptions(options) {
     // Parse options.
     var swLat = options.swLat;

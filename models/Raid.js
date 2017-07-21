@@ -3,13 +3,12 @@
 // Parse config.
 require('dotenv').config();
 
-const Sequelize = require('sequelize');
 const utils = require('../inc/utils.js');
 const pokedex = require('../data/pokedex/pokemon.json');
 
 
 /* Readability references. */
-const isEmpty = utils.isEmpty;
+
 const getPokemonName = utils.pokemon.getPokemonName;
 const getPokemonTypes = utils.pokemon.getPokemonTypes;
 
@@ -21,7 +20,6 @@ module.exports = function (sequelize, DataTypes) {
     var Raid = sequelize.define('Raid', {
         gym_id: {
             type: DataTypes.STRING(50),
-            primaryKey: true,
             references: {
                 model: sequelize.models.Gym,
                 key: 'gym_id'

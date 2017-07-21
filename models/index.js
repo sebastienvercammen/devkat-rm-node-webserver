@@ -31,6 +31,7 @@ const DB_FILE_PATH = process.env.DB_FILE_PATH || 'pogom.db';
 
 
 /* App. */
+
 var db = {};
 
 console.log('[%s] Connecting to database on %s:%s...', process.pid, DB_HOST, DB_PORT);

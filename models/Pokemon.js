@@ -9,6 +9,7 @@ const pokedex = require('../data/pokedex/pokemon.json');
 
 
 /* Readability references. */
+
 const isEmpty = utils.isEmpty;
 const getPokemonData = utils.pokemon.getPokemonData;
 const getPokemonName = utils.pokemon.getPokemonName;
@@ -17,10 +18,12 @@ const getPokemonTypes = utils.pokemon.getPokemonTypes;
 
 
 /* Settings. */
+
 const POKEMON_LIMIT_PER_QUERY = parseInt(process.env.POKEMON_LIMIT_PER_QUERY) || 50000;
 
 
 /* Helpers. */
+
 function prepareQueryOptions(options) {
     // Parse options.
     var whitelist = options.whitelist || [];
@@ -268,6 +271,7 @@ module.exports = function (sequelize, DataTypes) {
         freezeTableName: true,
         tableName: 'pokemon'
     });
+
 
     /* Methods. */
 

@@ -6,15 +6,19 @@ require('dotenv').config();
 const Sequelize = require('sequelize');
 const utils = require('../inc/utils.js');
 
+
 /* Readability references. */
+
 const isEmpty = utils.isEmpty;
 
 
 /* Settings. */
+
 const GYM_LIMIT_PER_QUERY = parseInt(process.env.GYM_LIMIT_PER_QUERY) || 50000;
 
 
 /* Helpers. */
+
 function prepareQueryOptions(models, options) {
     // Parse options.
     var swLat = options.swLat;
@@ -187,7 +191,14 @@ module.exports = function (sequelize, DataTypes) {
             targetKey: 'gym_id',
             as: 'raid'
         });
+
+        Gym.hasMany(models.GymMember, {
+            foreignKey: 'gym_id',
+            targetKey: 'gym_id',
+            as: 'members'
+        });
     };
+
 
     /* Methods. */
 
