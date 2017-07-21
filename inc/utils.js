@@ -4,7 +4,7 @@ var utils = {
         var time = new Date()
             .toLocaleString('nl-BE')
             .split(' ')[1];
-        console.log('[' + time + '] ' + txt);
+        console.log('[%s, %s] %s', time, process.pid, txt);
     },
 
     // Generic error log & exit.

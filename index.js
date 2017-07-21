@@ -17,16 +17,17 @@
 require('dotenv').config();
 
 // Log coloring.
-var con = require('manakin').global;
+const con = require('manakin').global;
 con.setBright();
 
-var cluster = require('cluster');
-var utils = require('./inc/utils.js');
+const cluster = require('cluster');
+const utils = require('./inc/utils.js');
 var shuttingDown = false; // Are we shutting down?
 var online_workers = {}; // Status per worker PID.
 
 
 /* Readability references. */
+
 const fixWinSIGINT = utils.fixWinSIGINT;
 
 
@@ -38,7 +39,8 @@ const WEB_HOST = process.env.WEB_HOST || '0.0.0.0';
 const WEB_PORT = parseInt(process.env.WEB_PORT) || 3000;
 const WEB_WORKERS = parseInt(process.env.WEB_WORKERS) || require('os').cpus().length;
 const ENABLE_LOAD_LIMITER = process.env.ENABLE_LOAD_LIMITER !== 'false' || false;
-const MAX_LAG_MS = parseInt(process.env.MAX_LAG_MS) || 250;
+const ENABLE_LOAD_LIMITER_LOGGING = process.env.ENABLE_LOAD_LIMITER_LOGGING !== 'false' || false;
+const MAX_LAG_MS = parseInt(process.env.MAX_LAG_MS) || 70;
 const LAG_INTERVAL_MS = parseInt(process.env.LAG_INTERVAL_MS) || 500;
 const ENABLE_CLUSTER = process.env.ENABLE_CLUSTER !== 'false' || false;
 const AUTORESTART_WORKERS = process.env.AUTORESTART_WORKERS !== 'false' || false;
@@ -50,7 +52,7 @@ fixWinSIGINT();
 // If we're the cluster master, manage our processes.
 if (ENABLE_CLUSTER && cluster.isMaster) {
     if (DEBUG) {
-        console.log('Master cluster setting up %s workers...', WEB_WORKERS);
+        utils.log('Master cluster setting up %s workers...', WEB_WORKERS);
     }
 
     for (let i = 0; i < WEB_WORKERS; i++) {
@@ -60,7 +62,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
     // Worker is online, but not yet ready to handle requests.
     cluster.on('online', function (worker) {
         if (DEBUG) {
-            console.log('Worker %s (PID %s) is starting...', worker.id, worker.process.pid);
+            utils.log('Worker %s (PID %s) is starting...', worker.id, worker.process.pid);
         }
     });
 
@@ -91,7 +93,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
             console.error('Worker %s died with code %s, and signal %s.', pid, code, signal);
 
             if (AUTORESTART_WORKERS)
-                console.log('Starting a new worker.');
+                utils.log('Starting a new worker.');
         }
 
         // Start new worker if autorestart is enabled.
@@ -102,7 +104,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
     // Worker disconnected, either on graceful shutdown or kill.
     cluster.on('disconnect', function workerDisconnected(worker) {
         if (DEBUG) {
-            console.log('Worker %s (PID %s) has disconnected.', worker.id, worker.process.pid);
+            utils.log('Worker %s (PID %s) has disconnected.', worker.id, worker.process.pid);
         }
     });
 
@@ -123,7 +125,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
     process.on('SIGINT', function graceful() {
         shuttingDown = true;
         if (DEBUG) {
-            console.log('Gracefully closing server...');
+            utils.log('Gracefully closing server...');
         }
 
         // Kill all workers, but let them kill themselves because otherwise they
@@ -166,10 +168,11 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
     });
 } else {
     // We're a worker, prepare to handle requests.
-    let toobusy = require('toobusy-js');
-    let express = require('express');
-    let compression = require('compression');
-    let app = express();
+    const toobusy = require('toobusy-js');
+    const express = require('express');
+    const compression = require('compression');
+    const app = express();
+
 
     /* Routing. */
 
@@ -183,9 +186,11 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
         toobusy.maxLag(MAX_LAG_MS);
         toobusy.interval(LAG_INTERVAL_MS);
 
+        utils.log('Enabled load limiter: ' + MAX_LAG_MS + 'ms limit, ' + LAG_INTERVAL_MS + ' ms check.');
+
         app.use(function (req, res, next) {
             if (toobusy()) {
-                res.sendStatus(503);
+                res.sendStatus(503).end();
             } else {
                 next();
             }
@@ -194,7 +199,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
         toobusy.onLag(function (currentLag) {
             currentLag = Math.round(currentLag);
     
-            if (DEBUG) {
+            if (DEBUG && ENABLE_LOAD_LIMITER_LOGGING) {
                 console.error('[%s] Event loop lag detected! Latency: %sms.', process.pid, currentLag);
             }
         });
@@ -204,6 +209,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
 
     app.use(require('./routes/raw_data.js'));
     //app.use(require('./routes/captcha.js'));
+
 
     /* App. */
 

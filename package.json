@@ -23,6 +23,7 @@
     "cache-require-paths": "^0.3.0",
     "cluster": "^0.7.7",
     "compression": "^1.6.2",
+    "cors": "^2.8.4",
     "dotenv": "^4.0.0",
     "express": "^4.15.2",
     "manakin": "^0.4.6",

@@ -1,25 +1,37 @@
 ﻿
 require('dotenv').config();
 
-var utils = require('../inc/utils.js');
-var express = require('express');
-var router = express.Router();
+const utils = require('../inc/utils.js');
+const express = require('express');
+const cors = require('cors');
+const router = express.Router();
 
-var models = require('../models');
-var Pokemon = models.Pokemon;
-var Pokestop = models.Pokestop;
-var Raid = models.Raid;
-var Gym = models.Gym;
+const models = require('../models');
+const Pokemon = models.Pokemon;
+const Pokestop = models.Pokestop;
+const Raid = models.Raid;
+const Gym = models.Gym;
+
 
 /* Readability. */
-var isEmpty = utils.isEmpty;
+const isEmpty = utils.isEmpty;
+const isUndefined = utils.isUndefined;
 
 
 /* Settings. */
 const ROUTE_RAW_DATA = process.env.ROUTE_RAW_DATA || '/raw_data';
+const CORS_WHITELIST = process.env.CORS_WHITELIST || '';
+
+
+/* CORS. */
+const whitelist = CORS_WHITELIST.split(',');
+const corsOptions = {
+    origin: whitelist
+};
+
 
 /* Route. */
-router.get(ROUTE_RAW_DATA, function (req, res) {
+router.get(ROUTE_RAW_DATA, cors(corsOptions), function (req, res) {
     var query = req.query;
 
 

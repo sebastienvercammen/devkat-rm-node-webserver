@@ -80,6 +80,9 @@ WEB_HOST=0.0.0.0
 # Webserver port.
 WEB_PORT=8080
 
+# Set up domain(s) to allow CORS for, via comma-separated list.
+CORS_WHITELIST=http://12.34.56.78,https://domain.com,https://www.domain.com
+
 # And all database settings.
 DB_TYPE=mysql
 DB_HOST=localhost
@@ -93,6 +96,15 @@ DB_DATABASE=db_name
 
 ```
 ENABLE_GZIP=true
+```
+
+#### Allowing CORS for all domains.
+
+**Warning:** Enabling CORS for all domains is not recommended. You will only make it easier for scrapers to get your data.
+
+```
+# Set up domain(s) to allow CORS for, via comma-separated list.
+CORS_WHITELIST=*
 ```
 
 #### Disabling process management with cluster
