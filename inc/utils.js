@@ -1,20 +1,12 @@
 var utils = {
-    // Log to console w/ a timestamp.
-    log: function (txt) {
-        var time = new Date()
-            .toLocaleString('nl-BE')
-            .split(' ')[1];
-        console.log('[%s, %s] %s', time, process.pid, txt);
-    },
-
     // Generic error log & exit.
-    handle_error: function (err) {
+    handle_error: (err) => {
         console.error(err);
         process.exit(1);
     },
 
     // Fix SIGINT on Windows systems.
-    fixWinSIGINT: function () {
+    fixWinSIGINT: () => {
         if (process.platform === 'win32') {
             require('readline')
                 .createInterface({
@@ -28,17 +20,17 @@ var utils = {
     },
 
     // Readability methods.
-    isUndefined: function (val) {
+    isUndefined: (val) => {
         return (typeof val === 'undefined');
     },
 
     // TODO: Figure out better name than "isEmpty".
-    isEmpty: function (val) {
+    isEmpty: (val) => {
         return (utils.isUndefined(val) || val === null || val === '');
     },
 
     // Check if a string is numeric (e.g. for GET params).
-    isNumeric: function (n) {
+    isNumeric: (n) => {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
 };
@@ -49,12 +41,12 @@ var utils = {
  */
 utils.pokemon = {
     // Check if Pokémon ID is in data.
-    hasPokemonData: function (pokedex, id) {
+    hasPokemonData: (pokedex, id) => {
         return pokedex.hasOwnProperty(id);
     },
 
     // Get a Pokémon's data.
-    getPokemonData: function (pokedex, id) {
+    getPokemonData: (pokedex, id) => {
         // Are we sure we have this Pokémon?
         if (!utils.pokemon.hasPokemonData(pokedex, id)) {
             return false;
@@ -64,7 +56,7 @@ utils.pokemon = {
     },
 
     // Get a Pokémon's name.
-    getPokemonName: function (pokedex, id) {
+    getPokemonName: (pokedex, id) => {
         // Are we sure we have this Pokémon?
         if (!utils.pokemon.hasPokemonData(pokedex, id)) {
             return null;
@@ -74,7 +66,7 @@ utils.pokemon = {
     },
 
     // Get a Pokémon's rarity.
-    getPokemonRarity: function (pokedex, id) {
+    getPokemonRarity: (pokedex, id) => {
         // Are we sure we have this Pokémon?
         if (!utils.pokemon.hasPokemonData(pokedex, id)) {
             return null;
@@ -84,7 +76,7 @@ utils.pokemon = {
     },
 
     // Get a Pokémon's types.
-    getPokemonTypes: function (pokedex, id) {
+    getPokemonTypes: (pokedex, id) => {
         // Are we sure we have this Pokémon?
         if (!utils.pokemon.hasPokemonData(pokedex, id)) {
             return null;

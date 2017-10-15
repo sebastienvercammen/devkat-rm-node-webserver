@@ -1,5 +1,5 @@
 /*
-    Async Node.js webserver w/ Express.js, sequelize ORM for RocketMap. 
+    Async Node.js webserver w/ restify and node-mysql for RocketMap. 
     Supports gzip compression, load limiting w/ toobusy-js and multiprocessing
     with cluster.
 
@@ -11,17 +11,22 @@
         - Global blacklist.
         - Search control.
         - Manual captcha solving.
+
+
+    Everything has been stripped out and replaced with more efficient versions
+    - Added support for HTTPS.
+    - Added built-in dtrace support.
+    - Reworked logging. More detailed options and better configurability.
+    - Added request throttling: you can configure a maximum number of requests per second per IP (rate limit), and set an optional higher limit for when users should temporarily be allowed to go over the rate limit (burst limit).
  */
 
 // Parse config.
 require('dotenv').config();
 
-// Log coloring.
-const con = require('manakin').global;
-con.setBright();
-
+const debug = require('debug')('devkat:master');
 const cluster = require('cluster');
 const utils = require('./inc/utils.js');
+const db = require('./inc/db.js');
 var shuttingDown = false; // Are we shutting down?
 var online_workers = {}; // Status per worker PID.
 
@@ -33,7 +38,11 @@ const fixWinSIGINT = utils.fixWinSIGINT;
 
 /* Settings. */
 
-const DEBUG = process.env.DEBUG === 'true' || false;
+const SERVER_NAME = process.env.SERVER_NAME || 'devkat RM Webserver';
+const SERVER_VERSION = process.env.SERVER_VERSION || '2.0.0';
+const HTTPS = process.env.ENABLE_HTTPS === 'true' || false;
+const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH || 'privkey.pem';
+const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH || 'cert.pem';
 const GZIP = process.env.ENABLE_GZIP === 'true' || false;
 const WEB_HOST = process.env.WEB_HOST || '0.0.0.0';
 const WEB_PORT = parseInt(process.env.WEB_PORT) || 3000;
@@ -44,6 +53,9 @@ const MAX_LAG_MS = parseInt(process.env.MAX_LAG_MS) || 70;
 const LAG_INTERVAL_MS = parseInt(process.env.LAG_INTERVAL_MS) || 500;
 const ENABLE_CLUSTER = process.env.ENABLE_CLUSTER !== 'false' || false;
 const AUTORESTART_WORKERS = process.env.AUTORESTART_WORKERS !== 'false' || false;
+const ENABLE_THROTTLE = process.env.ENABLE_THROTTLE !== 'false' || true;
+const THROTTLE_RATE = parseInt(process.env.THROTTLE_RATE) || 5;
+const THROTTLE_BURST = parseInt(process.env.THROTTLE_BURST) || 10;
 
 
 // If we're on Windows, fix the SIGINT event.
@@ -51,9 +63,7 @@ fixWinSIGINT();
 
 // If we're the cluster master, manage our processes.
 if (ENABLE_CLUSTER && cluster.isMaster) {
-    if (DEBUG) {
-        utils.log('Master cluster setting up %s workers...', WEB_WORKERS);
-    }
+    debug('Master cluster setting up %s workers...', WEB_WORKERS);
 
     for (let i = 0; i < WEB_WORKERS; i++) {
         cluster.fork();
@@ -61,9 +71,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
 
     // Worker is online, but not yet ready to handle requests.
     cluster.on('online', function (worker) {
-        if (DEBUG) {
-            utils.log('Worker %s (PID %s) is starting...', worker.id, worker.process.pid);
-        }
+        debug('Worker %s (PID %s) is starting...', worker.id, worker.process.pid);
     });
 
     // Worker is ded :(
@@ -73,15 +81,13 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
 
         // Don't continue if we're shutting down.
         if (shuttingDown) {
-            console.success('Worker %s (PID %s) has exited.', worker.id, worker.process.pid);
+            debug('Worker %s (PID %s) has exited.', worker.id, worker.process.pid);
             return;
         }
 
         // If the worker wasn't online yet, something happened during startup.
         if (!online_workers.hasOwnProperty(worker.process.pid)) {
-            if (DEBUG) {
-                console.error('Worker %s (PID %s) encountered an error on startup. Exiting.', id, pid);
-            }
+            debug('Worker %s (PID %s) encountered an error on startup. Exiting.', id, pid);
             shuttingDown = true;
 
             // Graceful shutdown instead of process.exit().
@@ -89,12 +95,8 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
             return;
         }
 
-        if (DEBUG) {
-            console.error('Worker %s died with code %s, and signal %s.', pid, code, signal);
-
-            if (AUTORESTART_WORKERS)
-                utils.log('Starting a new worker.');
-        }
+        debug('Worker %s died with code %s, and signal %s.', pid, code, signal);
+        if (AUTORESTART_WORKERS) debug('Starting a new worker.');
 
         // Start new worker if autorestart is enabled.
         if (AUTORESTART_WORKERS)
@@ -102,14 +104,12 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
     });
 
     // Worker disconnected, either on graceful shutdown or kill.
-    cluster.on('disconnect', function workerDisconnected(worker) {
-        if (DEBUG) {
-            utils.log('Worker %s (PID %s) has disconnected.', worker.id, worker.process.pid);
-        }
+    cluster.on('disconnect', (worker) => {
+        debug('Worker %s (PID %s) has disconnected.', worker.id, worker.process.pid);
     });
 
     // Receive messages from workers.
-    cluster.on('message', function workerMsg(worker, msg, handle) {
+    cluster.on('message', (worker, msg, handle) => {
         var status = msg.status;
         var id = msg.id;
         var pid = msg.pid;
@@ -120,13 +120,12 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
         }
     });
 
+
     /* Graceful shutdown. */
 
     process.on('SIGINT', function graceful() {
         shuttingDown = true;
-        if (DEBUG) {
-            utils.log('Gracefully closing server...');
-        }
+        debug('Gracefully closing server...');
 
         // Kill all workers, but let them kill themselves because otherwise they
         // might not be ready listening, and you end up with EPIPE errors.
@@ -151,34 +150,58 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
         }
 
         // Run code when all workers are dead w/o starving CPU.
-        function waitUntilAllWorkersDied(workers, interval, callback) {
+        function waitUntilAllWorkersDied(workers, interval_ms, callback) {
             if (!allWorkersDied(workers)) {
-                setTimeout(function () {
-                    waitUntilAllWorkersDied(workers, interval, callback);
-                }, interval);
+                setTimeout(() => {
+                    waitUntilAllWorkersDied(workers, interval_ms, callback);
+                }, interval_ms);
             } else {
                 // All dead! Yay!
                 callback();
             }
         }
 
-        waitUntilAllWorkersDied(cluster.workers, 500, function allDead() {
+        waitUntilAllWorkersDied(cluster.workers, 500, () => {
             process.exit(0);
         });
     });
 } else {
     // We're a worker, prepare to handle requests.
     const toobusy = require('toobusy-js');
-    const express = require('express');
-    const compression = require('compression');
-    const app = express();
+    const restify = require('restify');
+    const errors = require('restify-errors');
+    const restifyPlugins = restify.plugins;
 
+    // Webserver settings & optional HTTPS.
+    const HTTP_OPTIONS = {
+        name: SERVER_NAME,
+		version: SERVER_VERSION
+    };
 
-    /* Routing. */
+    if (HTTPS) {
+        HTTP_OPTIONS.key = fs.readFileSync(HTTPS_KEY_PATH);
+        HTTP_OPTIONS.certificate = fs.readFileSync(HTTPS_CERT_PATH);
+    }
 
-    // Optionally enable gzip compression.
+    // Create our server.
+    const server = restify.createServer(HTTP_OPTIONS);
+
+    // Middleware.
+    server.use(restifyPlugins.jsonBodyParser({ mapParams: true }));
+    server.use(restifyPlugins.acceptParser(server.acceptable));
+    server.use(restifyPlugins.queryParser({ mapParams: true }));
+    server.use(restifyPlugins.fullResponse());
+
     if (GZIP) {
-        app.use(compression());
+        server.use(restifyPlugins.gzipResponse());
+    }
+
+    if (ENABLE_THROTTLE) {
+        server.use(restifyPlugins.throttle({
+            rate: THROTTLE_RATE,
+            burst: THROTTLE_BURST,
+            ip: true
+        }));
     }
 
     // Middleware which blocks requests when we're too busy.
@@ -186,51 +209,49 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
         toobusy.maxLag(MAX_LAG_MS);
         toobusy.interval(LAG_INTERVAL_MS);
 
-        utils.log('Enabled load limiter: ' + MAX_LAG_MS + 'ms limit, ' + LAG_INTERVAL_MS + ' ms check.');
+        debug('Enabled load limiter: ' + MAX_LAG_MS + 'ms limit, ' + LAG_INTERVAL_MS + ' ms check.');
 
-        app.use(function (req, res, next) {
+        server.use(function (req, res, next) {
             if (toobusy()) {
-                res.sendStatus(503).end();
+                return next(new errors.ServiceUnavailableError());
             } else {
-                next();
+                return next();
             }
         });
-        
-        toobusy.onLag(function (currentLag) {
+
+        toobusy.onLag((currentLag) => {
             currentLag = Math.round(currentLag);
-    
-            if (DEBUG && ENABLE_LOAD_LIMITER_LOGGING) {
-                console.error('[%s] Event loop lag detected! Latency: %sms.', process.pid, currentLag);
+
+            if (ENABLE_LOAD_LIMITER_LOGGING) {
+                debug('[%s] Event loop lag detected! Latency: %sms.', process.pid, currentLag);
             }
         });
     }
-
-    // Routes.
-
-    app.use(require('./routes/raw_data.js'));
-    //app.use(require('./routes/captcha.js'));
 
 
     /* App. */
 
     // Workers can share any TCP connection.
-    var server = app.listen(WEB_PORT, WEB_HOST, function () {
-        if (DEBUG) {
-            if (ENABLE_CLUSTER) {
-                console.success('Worker %s (PID %s) is listening on %s:%s.', cluster.worker.id, process.pid, WEB_HOST, WEB_PORT);
-            } else {
-                console.success('Server (PID %s) is listening on %s:%s.', process.pid, WEB_HOST, WEB_PORT);
-            }
-        }
+    server.listen(WEB_PORT, WEB_HOST, () => {
+        // Connect to DB.
+        db.connect(() => {
+            // Attach routes.
+            require('./routes')(server);
 
-        if (ENABLE_CLUSTER) {
-            // We're online. Let's tell our master.
-            process.send({
-                'status': 'ONLINE',
-                'id': cluster.worker.id,
-                'pid': process.pid
-            });
-        }
+            // BEEP BOOP, R O B O T  I S  S E N T I E N T.
+            if (ENABLE_CLUSTER) {
+                debug('Worker %s (PID %s) is listening on %s.', cluster.worker.id, process.pid, server.url);
+
+                // We're online. Let's tell our sensei (it's a "master" joke 👀).
+                process.send({
+                    'status': 'ONLINE',
+                    'id': cluster.worker.id,
+                    'pid': process.pid
+                });
+            } else {
+                debug('Server (PID %s) is listening on %s.', process.pid, server.url);
+            }
+        });
     });
 
 
@@ -244,9 +265,9 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
         server.close();
 
         if (ENABLE_CLUSTER) {
-            console.success('Gracefully closed worker %s (PID %s).', cluster.worker.id, process.pid);
+            debug('Gracefully closed worker %s (PID %s).', cluster.worker.id, process.pid);
         } else {
-            console.success('Gracefully closed server (PID %s).', process.pid);
+            debug('Gracefully closed server (PID %s).', process.pid);
         }
 
         process.exit(0);
