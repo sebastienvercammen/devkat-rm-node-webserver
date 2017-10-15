@@ -100,8 +100,13 @@ function prepareGymPromise(query, params) {
     return new Promise((resolve, reject) => {
         db.query(query, params, (err, results, fields) => {
             if (err) {
-                reject(err);
+                return reject(err);
             } else {
+                // If there are no gyms, let's just go. 👀
+                if (results.length == 0) {
+                    return resolve([]);
+                }
+
                 // Gym references.
                 const gym_refs = {};
 
@@ -123,7 +128,7 @@ function prepareGymPromise(query, params) {
                         gym_refs['' + raid.gym_id].raid = raid;
                     }
 
-                    resolve(Object.values(gym_refs));
+                    return resolve(Object.values(gym_refs));
                 }).catch(utils.handle_error);
 
 
