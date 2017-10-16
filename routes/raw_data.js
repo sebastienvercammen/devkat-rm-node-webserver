@@ -305,7 +305,21 @@ module.exports = (server) => {
         if (show_gyms) {
             // Completion handler.
             let foundGyms = (gyms) => {
-                response.gyms = gyms;
+                // RM uses an object w/ gym_id as keys. Can't remember why, this might be a case of "old code".
+                // TODO: Look at RM's code for this and optimize.
+                const gyms_obj = {};
+
+                while (gyms.length > 0) {
+                    const gym = gyms.pop();
+                    
+                    // TODO: Add gym members.
+                    gym.pokemon = [];
+
+                    // Attach to result object.
+                    gyms_obj[gym.gym_id] = gym;
+                }
+
+                response.gyms = gyms_obj;
                 completed_gyms = true;
 
                 return partialCompleted(completed_pokemon, completed_pokestops, completed_gyms, res, response);
