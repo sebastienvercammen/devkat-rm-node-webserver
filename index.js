@@ -49,17 +49,17 @@ const WEB_PORT = parseInt(process.env.WEB_PORT) || 3000;
 const WEB_WORKERS = parseInt(process.env.WEB_WORKERS) || require('os').cpus().length;
 const ENABLE_LOAD_LIMITER = process.env.ENABLE_LOAD_LIMITER !== 'false' || false;
 const ENABLE_LOAD_LIMITER_LOGGING = process.env.ENABLE_LOAD_LIMITER_LOGGING !== 'false' || false;
-const MAX_LAG_MS = parseInt(process.env.MAX_LAG_MS) || 70;
+const MAX_LAG_MS = parseInt(process.env.MAX_LAG_MS) || 75;
 const LAG_INTERVAL_MS = parseInt(process.env.LAG_INTERVAL_MS) || 500;
 const ENABLE_CLUSTER = process.env.ENABLE_CLUSTER !== 'false' || false;
 const AUTORESTART_WORKERS = process.env.AUTORESTART_WORKERS !== 'false' || false;
-const ENABLE_THROTTLE = process.env.ENABLE_THROTTLE !== 'false' || true;
+const ENABLE_THROTTLE = process.env.ENABLE_THROTTLE !== 'false' || false;
 const THROTTLE_RATE = parseInt(process.env.THROTTLE_RATE) || 5;
 const THROTTLE_BURST = parseInt(process.env.THROTTLE_BURST) || 10;
 
 
 // If we're on Windows, fix the SIGINT event.
-fixWinSIGINT();
+//fixWinSIGINT();
 
 // If we're the cluster master, manage our processes.
 if (ENABLE_CLUSTER && cluster.isMaster) {
@@ -197,6 +197,7 @@ if (ENABLE_CLUSTER && cluster.isMaster) {
     }
 
     if (ENABLE_THROTTLE) {
+        debug('Throttle enabled: %d requests per second, %d burst.', THROTTLE_RATE, THROTTLE_BURST);
         server.use(restifyPlugins.throttle({
             rate: THROTTLE_RATE,
             burst: THROTTLE_BURST,

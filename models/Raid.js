@@ -7,13 +7,6 @@ require('dotenv').config();
 /* Includes. */
 
 const db = require('../inc/db.js').pool;
-const utils = require('../inc/utils.js');
-
-
-/* Readability references. */
-
-const getPokemonName = utils.pokemon.getPokemonName;
-const getPokemonTypes = utils.pokemon.getPokemonTypes;
 
 
 /* Helpers. */
@@ -27,8 +20,7 @@ function prepareRaidPromise(query, params) {
             if (err) {
                 reject(err);
             } else {
-                // Empty list or single raid.
-                resolve((results.length > 0) ? results[0] : []);
+                resolve(results);
             }
         });
     });

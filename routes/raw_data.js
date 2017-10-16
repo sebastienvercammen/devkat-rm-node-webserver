@@ -1,8 +1,9 @@
 // Parse config.
 require('dotenv').config();
 
-const debug = require('debug')('devkat:raw_data');
+const debug = require('debug')('devkat:routes:raw_data');
 const errors = require('restify-errors');
+const corsMiddleware = require('restify-cors-middleware');
 
 const utils = require('../inc/utils.js');
 
@@ -23,9 +24,9 @@ const CORS_WHITELIST = process.env.CORS_WHITELIST || '';
 
 /* CORS. */
 const whitelist = CORS_WHITELIST.split(',');
-const corsOptions = {
-    origin: whitelist
-};
+const cors = corsMiddleware({
+    origins: whitelist
+});
 
 
 /* Helpers. */
@@ -95,9 +96,17 @@ function parseGetParam(param, defaultVal) {
 
 // Node.js.
 module.exports = (server) => {
+    // CORS middleware.
+    server.pre(cors.preflight);
+    server.use(cors.actual);
+
+
     /* Route. */
+
     server.get(ROUTE_RAW_DATA, (req, res, next) => {
         let data = req.params || {};
+
+        debug('Request to %s from %s.', ROUTE_RAW_DATA, req.connection.remoteAddress);
 
 
         /* Verify request. */
@@ -124,7 +133,7 @@ module.exports = (server) => {
         const no_gyms = parseGetParam(data.no_gyms, false);
 
         const show_pokemon = parseGetParam(data.pokemon, true) && !no_pokemon;
-        const show_pokestops = false;//parseGetParam(data.pokestops, true) && !no_pokestops;
+        const show_pokestops = parseGetParam(data.pokestops, true) && !no_pokestops;
         const show_gyms = parseGetParam(data.gyms, true) && !no_gyms;
 
         // Previous switch settings.
