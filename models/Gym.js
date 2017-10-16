@@ -131,7 +131,9 @@ function prepareGymPromise(query, params) {
                         gym_refs['' + raid.gym_id].raid = raid;
                     }
 
-                    return resolve(Object.values(gym_refs));
+                    const values = Object.keys(gym_refs).map((k) => gym_refs[k]);
+
+                    return resolve(values);
                 }).catch(utils.handle_error);
 
 

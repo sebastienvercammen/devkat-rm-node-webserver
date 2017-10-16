@@ -55,7 +55,7 @@ Raid.from_gym_ids = (ids) => {
     // This is another simple one.
     const query = 'SELECT * FROM ' + tablename + ' WHERE gym_id IN (?)';
     const params = [ ids ];
-    console.log(query, params);
+
     // Return promise.
     return prepareRaidPromise(query, params);
 };
