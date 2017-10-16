@@ -99,7 +99,7 @@ function prepareQuery(options) {
     if (whitelist.length > 0) {
         query_where.push(
             [
-                'pokemon_id IN ?',
+                'pokemon_id IN (?)',
                 [whitelist]
             ]
         );
@@ -108,7 +108,7 @@ function prepareQuery(options) {
     if (blacklist.length > 0) {
         query_where.push(
             [
-                'pokemon_id NOT IN ?',
+                'pokemon_id NOT IN (?)',
                 [blacklist]
             ]
         );
