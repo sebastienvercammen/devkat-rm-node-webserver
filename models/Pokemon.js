@@ -26,6 +26,9 @@ const POKEMON_LIMIT_PER_QUERY = parseInt(process.env.POKEMON_LIMIT_PER_QUERY) ||
 
 /* Helpers. */
 
+// Make sure SQL uses proper timezone.
+const FROM_UNIXTIME = "CONVERT_TZ(FROM_UNIXTIME(?), @@session.time_zone, '+00:00')";
+
 function prepareQuery(options) {
     // Parse options.
     var whitelist = options.whitelist || [];
@@ -43,7 +46,7 @@ function prepareQuery(options) {
     // Query options.
     var query_where = [
         [
-            'disappear_time > FROM_UNIXTIME(?)',
+            'disappear_time > ' + FROM_UNIXTIME,
             [ Math.round(Date.now() / 1000) ]
         ]
     ];
@@ -118,7 +121,7 @@ function prepareQuery(options) {
 
         query_where.push(
             [
-                'last_modified > FROM_UNIXTIME(?)',
+                'last_modified > ' + FROM_UNIXTIME,
                 [Math.round(timestamp / 1000)]
             ]
         );

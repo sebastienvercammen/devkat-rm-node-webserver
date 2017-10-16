@@ -25,8 +25,7 @@ const pool = mysql.createPool({
     'user': DB_USER,
     'password': DB_PASS,
     'database': DB_DATABASE,
-    'connectionLimit': DB_POOL_MAX_SIZE,
-    'timezone': '+00:00'
+    'connectionLimit': DB_POOL_MAX_SIZE
 });
 
 
