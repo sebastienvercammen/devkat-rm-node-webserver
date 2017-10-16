@@ -23,6 +23,9 @@ const GYM_LIMIT_PER_QUERY = parseInt(process.env.GYM_LIMIT_PER_QUERY) || 50000;
 
 /* Helpers. */
 
+// Make sure SQL uses proper timezone.
+const FROM_UNIXTIME = "CONVERT_TZ(FROM_UNIXTIME(?), @@session.time_zone, '+00:00')";
+
 function prepareQuery(options) {
     // Parse options.
     var swLat = options.swLat;
@@ -60,7 +63,7 @@ function prepareQuery(options) {
 
         query_where.push(
             [
-                'last_scanned > FROM_UNIXTIME(?)',
+                'last_scanned > ' + FROM_UNIXTIME,
                 [Math.round(timestamp / 1000)]
             ]
         );
