@@ -1,4 +1,4 @@
-# Node.js devkat Webserver for RocketMap
+# The Sublimely Magnificent Node.js RM Webserver Mark III
 
 An asynchronous Node.js webserver on Express.js that uses Sequelize for ORM and that supports gzip compression, load limiting with toobusy-js and multiprocessing (+ process management) with cluster.
 
@@ -14,7 +14,7 @@ These instructions will help you deploy the project on a live system.
 
 ### Prerequisites
 
-- [Node.js v6.10.3 or higher](https://nodejs.org/en/)
+- [Node.js v6.11.4 or higher](https://nodejs.org/en/)
 - npm v4.6.0 or higher
 
 ```
@@ -26,7 +26,7 @@ npm install -g npm
 
 Start by reading the license in LICENSE.md.
 
-Make sure node.js and npm are properly installed:
+Make sure Node.js and npm are properly installed:
 
 ```
 node -v
@@ -68,12 +68,6 @@ node index.js
 #### Settings you must review
 
 ```
-# Enable or disable console logging.
-DEBUG=true
-
-# Enable or disable verbose logging (includes SQL queries).
-VERBOSE=false
-
 # Webserver host IP to bind to. 0.0.0.0 binds to all interfaces.
 WEB_HOST=0.0.0.0
 
@@ -81,15 +75,14 @@ WEB_HOST=0.0.0.0
 WEB_PORT=8080
 
 # Set up domain(s) to allow CORS for, via comma-separated list.
-CORS_WHITELIST=http://12.34.56.78,https://domain.com,https://www.domain.com
+CORS_WHITELIST=*
 
 # And all database settings.
-DB_TYPE=mysql
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
 DB_PASS=
-DB_DATABASE=db_name
+DB_DATABASE=database
 ```
 
 #### Enabling gzip compression
@@ -98,7 +91,44 @@ DB_DATABASE=db_name
 ENABLE_GZIP=true
 ```
 
-#### Allowing CORS for all domains.
+#### Enabling HTTPS
+
+```
+# HTTPS key file paths.
+ENABLE_HTTPS=true
+HTTPS_KEY_PATH=privkey.pem
+HTTPS_CERT_PATH=cert.pem
+```
+
+#### Enabling load limiter
+
+```
+# Enable/disable the load limiter.
+ENABLE_LOAD_LIMITER=true
+
+# Enable/disable logging when load limiter kicks in on a worker.
+ENABLE_LOAD_LIMITER_LOGGING=true
+
+# Represents the maximum amount of time in milliseconds that the event queue
+# is behind, before we consider the process "too busy".
+MAX_LAG_MS=75
+
+# The check interval for measuring event loop lag, in milliseconds.
+LAG_INTERVAL_MS=500
+```
+
+#### Enabling request throttling
+
+```
+# Enable/disable webserver request throttling.
+ENABLE_THROTTLE=true
+# Rate limit: requests per second.
+THROTTLE_RATE=5
+# Allow user to temporarily go over the rate limit, up to the burst limit.
+THROTTLE_BURST=10
+```
+
+#### Allowing CORS for all domains
 
 **Warning:** Enabling CORS for all domains is not recommended. You will only make it easier for scrapers to get your data.
 
