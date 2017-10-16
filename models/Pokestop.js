@@ -63,7 +63,7 @@ function prepareQueryOptions(options) {
 
         query_where.push(
             [
-                'last_scanned > ' + FROM_UNIXTIME,
+                'last_updated > ' + FROM_UNIXTIME,
                 [Math.round(timestamp / 1000)]
             ]
         );
