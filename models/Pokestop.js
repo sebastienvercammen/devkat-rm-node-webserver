@@ -115,7 +115,22 @@ function preparePokestopPromise(query, params) {
             if (err) {
                 reject(err);
             } else {
-                resolve(results);
+                // If there are no pokéstops, let's just go. 👀
+                if (results.length == 0) {
+                    return resolve(results);
+                }
+
+                // Manipulate pokéstops, destructive operations.
+                for (var i = 0; i < results.length; i++) {
+                    let pokestop = results[i];
+
+                    // Convert datetime to UNIX timestamp.
+                    pokestop.last_modified = Date.parse(gym.last_modified) || 0;
+                    pokestop.last_updated = Date.parse(gym.last_updated) || 0;
+                    pokestop.lure_expiration = Date.parse(gym.lure_expiration) || 0;
+                }
+
+                return resolve(results);
             }
         });
     });

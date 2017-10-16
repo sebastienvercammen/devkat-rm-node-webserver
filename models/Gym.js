@@ -119,6 +119,11 @@ function prepareGymPromise(query, params) {
                 // One query to rule them all.
                 for (var i = 0; i < results.length; i++) {
                     let gym = results[i];
+
+                    // Convert datetime to UNIX timestamp.
+                    gym.last_modified = Date.parse(gym.last_modified) || 0;
+                    gym.last_scanned = Date.parse(gym.last_scanned) || 0;
+
                     gym_refs['' + gym.gym_id] = gym;
                 }
 
@@ -128,6 +133,12 @@ function prepareGymPromise(query, params) {
                     // Attach raids to gyms.
                     for (var i = 0; i < raids.length; i++) {
                         let raid = raids[i];
+
+                        // Convert datetime to UNIX timestamp.
+                        raid.spawn = Date.parse(raid.spawn) || 0;
+                        raid.start = Date.parse(raid.start) || 0;
+                        raid.end = Date.parse(raid.end) || 0;
+
                         gym_refs['' + raid.gym_id].raid = raid;
                     }
 
