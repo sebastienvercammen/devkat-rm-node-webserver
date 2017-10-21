@@ -169,8 +169,8 @@ function preparePokemonPromise(query, params) {
                     let pokemon_id = poke.pokemon_id;
 
                     // Add name/rarity/types and transform times. Destructive.
-                    poke.disappear_time = (new Date(poke.disappear_time)).getTime();
-                    poke.last_modified = (new Date(poke.last_modified)).getTime();
+                    poke.disappear_time = Date.parse(poke.disappear_time) || 0;
+                    poke.last_modified = Date.parse(poke.last_modified) || 0;
                     poke.pokemon_name = getPokemonName(pokedex, pokemon_id) || '';
                     poke.pokemon_rarity = getPokemonRarity(pokedex, pokemon_id) || null;
                     poke.pokemon_types = getPokemonTypes(pokedex, pokemon_id) || [];
