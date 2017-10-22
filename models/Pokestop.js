@@ -125,9 +125,9 @@ function preparePokestopPromise(query, params) {
                     let pokestop = results[i];
 
                     // Convert datetime to UNIX timestamp.
-                    pokestop.last_modified = Date.parse(gym.last_modified) || 0;
-                    pokestop.last_updated = Date.parse(gym.last_updated) || 0;
-                    pokestop.lure_expiration = Date.parse(gym.lure_expiration) || 0;
+                    pokestop.last_modified = Date.parse(pokestop.last_modified) || 0;
+                    pokestop.last_updated = Date.parse(pokestop.last_updated) || 0;
+                    pokestop.lure_expiration = Date.parse(pokestop.lure_expiration) || 0;
                 }
 
                 return resolve(results);
