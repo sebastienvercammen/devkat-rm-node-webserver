@@ -191,7 +191,7 @@ Gym.get_gyms = (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, o
         'timestamp': timestamp
     });
 
-    const query = 'SELECT * FROM ' + tablename + ' g INNER JOIN gymdetails gd ON gym.gym_id = gymdetails.gym_id' + query_where[0];
+    const query = 'SELECT * FROM ' + tablename + ' g INNER JOIN gymdetails gd ON g.gym_id = gd.gym_id' + query_where[0];
     const params = query_where[1];
 
     // Return promise.
