@@ -10,6 +10,7 @@ const db = require('../inc/db.js').pool;
 const utils = require('../inc/utils.js');
 
 const Raid = require('./Raid');
+const GymPokemon = require('./GymPokemon');
 
 /* Readability references. */
 
@@ -45,13 +46,13 @@ function prepareQuery(options) {
     if (!isEmpty(swLat) && !isEmpty(swLng) && !isEmpty(neLat) && !isEmpty(neLng)) {
         query_where.push(
             [
-                'latitude >= ? AND latitude <= ?',
+                'g.latitude >= ? AND g.latitude <= ?',
                 [swLat, neLat]
             ]
         );
         query_where.push(
             [
-                'longitude >= ? AND longitude <= ?',
+                'g.longitude >= ? AND g.longitude <= ?',
                 [swLng, neLng]
             ]
         );
@@ -63,7 +64,7 @@ function prepareQuery(options) {
 
         query_where.push(
             [
-                'last_scanned > ' + FROM_UNIXTIME,
+                'g.last_scanned > ' + FROM_UNIXTIME,
                 [Math.round(timestamp / 1000)]
             ]
         );
@@ -73,7 +74,7 @@ function prepareQuery(options) {
     if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
         query_where.push(
             [
-                'latitude < ? AND latitude > ? AND longitude < ? AND longitude > ?',
+                'g.latitude < ? AND g.latitude > ? AND g.longitude < ? AND g.longitude > ?',
                 [oSwLat, oNeLat, oSwLng, oNeLng]
             ]
         );
@@ -145,12 +146,12 @@ function prepareGymPromise(query, params) {
                         gym_refs['' + raid.gym_id].raid = raid;
                     }
                 })
-                .then(() => GymMember.from_gym_ids(gym_ids))
-                .then((gymMembers) => {
+                .then(() => GymPokemon.from_gym_ids(gym_ids))
+                .then((gymPokes) => {
                     // Attach gym members to gyms.
-                    for (var i = 0; i < gymMembers.length; i++) {
-                        const member = gymMembers[i];
-                        const gym = gym_refs['' + member.gym_id];
+                    for (var i = 0; i < gymPokes.length; i++) {
+                        const poke = gymPokes[i];
+                        const gym = gym_refs['' + poke.gym_id];
 
                         // Make sure the list is initialized.
                         if (!gym.hasOwnProperty('pokemon')) {
@@ -158,9 +159,9 @@ function prepareGymPromise(query, params) {
                         }
 
                         // Convert datetime to UNIX timestamp.
-                        member.last_seen = Date.parse(member.last_seen) || 0;
+                        poke.last_seen = Date.parse(poke.last_seen) || 0;
 
-                        gym.pokemon.push(member);
+                        gym.pokemon.push(poke);
                     }
                 })
                 .catch(utils.handle_error);
@@ -190,7 +191,7 @@ Gym.get_gyms = (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, o
         'timestamp': timestamp
     });
 
-    const query = 'SELECT * FROM ' + tablename + ' INNER JOIN gymdetails ON gym.gym_id = gymdetails.gym_id' + query_where[0];
+    const query = 'SELECT * FROM ' + tablename + ' g INNER JOIN gymdetails gd ON gym.gym_id = gymdetails.gym_id' + query_where[0];
     const params = query_where[1];
 
     // Return promise.
@@ -200,7 +201,7 @@ Gym.get_gyms = (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, o
 // Get single Gym + Pokémon in Gym by ID.
 Gym.get_gym = (id) => {
     // This is a simple one.
-    const query = 'SELECT * FROM ' + tablename + ' INNER JOIN gymdetails ON gym.gym_id = gymdetails.gym_id WHERE gym_id = ? LIMIT 1';
+    const query = 'SELECT * FROM ' + tablename + ' g INNER JOIN gymdetails gd ON g.gym_id = gd.gym_id WHERE gym_id = ? LIMIT 1';
     const params = [ id ];
 
     // Return promise.
