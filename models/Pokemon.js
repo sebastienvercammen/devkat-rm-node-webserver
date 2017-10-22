@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const db = require('../inc/db.js').pool;
 const utils = require('../inc/utils.js');
+const debug = require('debug')('devkat:db:pokemon');
 const pokedex = require('../data/pokedex/pokemon.json');
 
 
@@ -45,6 +46,7 @@ function prepareQuery(options) {
     var timestamp = options.timestamp || false;
 
     // Query options.
+    debug('Selecting Pokémon where disappear_time > FROM_UNIXTIME(%s).', Math.round(Date.now() / 1000));
     var query_where = [
         [
             'disappear_time > ' + FROM_UNIXTIME,
@@ -162,8 +164,10 @@ function preparePokemonPromise(query, params) {
     return new Promise((resolve, reject) => {
         db.query(query, params, (err, results, fields) => {
             if (err) {
-                reject(err);
+                return reject(err);
             } else {
+                debug('Found %s Pokémon results.', results.length);
+
                 // Manipulate response.
                 for (var i = 0; i < results.length; i++) {
                     let poke = results[i];
@@ -177,7 +181,7 @@ function preparePokemonPromise(query, params) {
                     poke.pokemon_types = getPokemonTypes(pokedex, pokemon_id) || [];
                 }
 
-                resolve(results);
+                return resolve(results);
             }
         });
     });
