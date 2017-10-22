@@ -14,7 +14,7 @@ const db = require('../inc/db.js').pool;
 // Make sure SQL uses proper timezone.
 const FROM_UNIXTIME = "CONVERT_TZ(FROM_UNIXTIME(?), @@session.time_zone, '+00:00')";
 
-function prepareRaidPromise(query, params) {
+function prepareGymPokemonPromise(query, params) {
     return new Promise((resolve, reject) => {
         db.query(query, params, (err, results, fields) => {
             if (err) {
@@ -29,28 +29,28 @@ function prepareRaidPromise(query, params) {
 
 /* Model. */
 
-const tablename = 'raid';
-const Raid = {};
+const tablename = 'gympokemon';
+const GymPokemon = {};
 
-// Get raid by gym ID.
-Raid.from_gym_id = (id) => {
+// Get gym member by gym ID.
+GymPokemon.from_gym_id = (id) => {
     // This is a simple one.
-    const query = 'SELECT * FROM ' + tablename + ' WHERE gym_id = ? LIMIT 1';
+    const query = 'SELECT * FROM ' + tablename + ' WHERE gym_id = ?';
     const params = [ id ];
 
     // Return promise.
-    return prepareRaidPromise(query, params);
+    return prepareGymPokemonPromise(query, params);
 };
 
-// Get raids by gym IDs.
-Raid.from_gym_ids = (ids) => {
+// Get gym members by gym IDs.
+GymPokemon.from_gym_ids = (ids) => {
     // This is another simple one.
     const query = 'SELECT * FROM ' + tablename + ' WHERE gym_id IN (?)';
     const params = [ ids ];
 
     // Return promise.
-    return prepareRaidPromise(query, params);
+    return prepareGymPokemonPromise(query, params);
 };
 
 
-module.exports = Raid;
+module.exports = GymPokemon;

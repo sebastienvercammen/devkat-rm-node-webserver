@@ -127,12 +127,15 @@ function prepareGymPromise(query, params) {
                     gym_refs['' + gym.gym_id] = gym;
                 }
 
+                // Make it easier to use.
+                const gym_ids = Object.keys(gym_refs);
+
                 // Lesgo.
-                Raid.from_gym_ids(Object.keys(gym_refs))
+                Raid.from_gym_ids(gym_ids)
                 .then((raids) => {
                     // Attach raids to gyms.
                     for (var i = 0; i < raids.length; i++) {
-                        let raid = raids[i];
+                        const raid = raids[i];
 
                         // Convert datetime to UNIX timestamp.
                         raid.spawn = Date.parse(raid.spawn) || 0;
@@ -141,15 +144,26 @@ function prepareGymPromise(query, params) {
 
                         gym_refs['' + raid.gym_id].raid = raid;
                     }
+                })
+                .then(() => GymMember.from_gym_ids(gym_ids))
+                .then((gymMembers) => {
+                    // Attach gym members to gyms.
+                    for (var i = 0; i < gymMembers.length; i++) {
+                        const member = gymMembers[i];
+                        const gym = gym_refs['' + member.gym_id];
 
-                    const values = Object.keys(gym_refs).map((k) => gym_refs[k]);
+                        // Make sure the list is initialized.
+                        if (!gym.hasOwnProperty('pokemon')) {
+                            gym.pokemon = [];
+                        }
 
-                    return resolve(values);
-                }).catch(utils.handle_error);
+                        // Convert datetime to UNIX timestamp.
+                        member.last_seen = Date.parse(member.last_seen) || 0;
 
-
-                /* Add gym members. */
-                // TODO
+                        gym.pokemon.push(member);
+                    }
+                })
+                .catch(utils.handle_error);
             }
         });
     });
@@ -176,7 +190,7 @@ Gym.get_gyms = (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, o
         'timestamp': timestamp
     });
 
-    const query = 'SELECT * FROM ' + tablename + query_where[0];
+    const query = 'SELECT * FROM ' + tablename + ' INNER JOIN gymdetails ON gym.gym_id = gymdetails.gym_id' + query_where[0];
     const params = query_where[1];
 
     // Return promise.
@@ -186,7 +200,7 @@ Gym.get_gyms = (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, o
 // Get single Gym + Pokémon in Gym by ID.
 Gym.get_gym = (id) => {
     // This is a simple one.
-    const query = 'SELECT * FROM ' + tablename + ' WHERE gym_id = ? LIMIT 1';
+    const query = 'SELECT * FROM ' + tablename + ' INNER JOIN gymdetails ON gym.gym_id = gymdetails.gym_id WHERE gym_id = ? LIMIT 1';
     const params = [ id ];
 
     // Return promise.
