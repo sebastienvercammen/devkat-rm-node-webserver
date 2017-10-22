@@ -27,8 +27,7 @@ const GYM_LIMIT_PER_QUERY = parseInt(process.env.GYM_LIMIT_PER_QUERY) || 50000;
 /* Helpers. */
 
 // Make sure SQL uses proper timezone.
-//const FROM_UNIXTIME = "CONVERT_TZ(FROM_UNIXTIME(?), @@session.time_zone, '+00:00')";
-const FROM_UNIXTIME = 'FROM_UNIXTIME(?)';
+const FROM_UNIXTIME = "CONVERT_TZ(FROM_UNIXTIME(?), @@session.time_zone, '+00:00')";
 
 function prepareQuery(options) {
     // Parse options.
