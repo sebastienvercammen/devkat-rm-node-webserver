@@ -14,13 +14,16 @@ const db = require('../inc/db.js').pool;
 // Make sure SQL uses proper timezone.
 const FROM_UNIXTIME = "CONVERT_TZ(FROM_UNIXTIME(?), @@session.time_zone, '+00:00')";
 
-function prepareGymPokemonPromise(query, params) {
+function prepareGymPokemonPromise(query, params, map_object) {
     return new Promise((resolve, reject) => {
         db.query(query, params, (err, results, fields) => {
             if (err) {
                 return reject(err);
             } else {
-                return resolve(results);
+                return resolve({
+                    'map': map_object,
+                    'pokemon': results
+                });
             }
         });
     });
@@ -32,24 +35,14 @@ function prepareGymPokemonPromise(query, params) {
 const tablename = 'gympokemon';
 const GymPokemon = {};
 
-// Get gym member by gym ID.
-GymPokemon.from_gym_id = (id) => {
-    // This is a simple one.
-    const query = 'SELECT * FROM ' + tablename + ' WHERE gym_id = ?';
-    const params = [ id ];
-
-    // Return promise.
-    return prepareGymPokemonPromise(query, params);
-};
-
-// Get gym members by gym IDs.
-GymPokemon.from_gym_ids = (ids) => {
+// Get gym Pokémon by Pokémon uIDs.
+GymPokemon.from_pokemon_uids_map = (pokemon_uids_obj) => {
     // This is another simple one.
-    const query = 'SELECT * FROM ' + tablename + ' WHERE gym_id IN (?)';
-    const params = [ ids ];
+    const query = 'SELECT * FROM ' + tablename + ' WHERE pokemon_uid IN (?)';
+    const params = [ Object.keys(pokemon_uids_obj) ];
 
     // Return promise.
-    return prepareGymPokemonPromise(query, params);
+    return prepareGymPokemonPromise(query, params, pokemon_uids_obj);
 };
 
 

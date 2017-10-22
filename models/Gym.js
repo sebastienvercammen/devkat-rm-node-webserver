@@ -10,7 +10,9 @@ const db = require('../inc/db.js').pool;
 const utils = require('../inc/utils.js');
 
 const Raid = require('./Raid');
+const GymMember = require('./GymMember');
 const GymPokemon = require('./GymPokemon');
+
 
 /* Readability references. */
 
@@ -146,12 +148,28 @@ function prepareGymPromise(query, params) {
                         gym_refs['' + raid.gym_id].raid = raid;
                     }
                 })
-                /*.then(() => GymPokemon.from_gym_ids(gym_ids))
-                .then((gymPokes) => {
+                .then(() => GymMember.from_gym_ids(gym_ids))
+                .then((gymMembers) => {
+                    // Get gym Pokémon from gym members by
+                    // mapping pokemon_uid to gym_id.
+                    const pokemon_uids = {};
+
+                    for (var i = 0; i < gymMembers.length; i++) {
+                        const member = gymMembers[i];
+                        pokemon_uids[member.pokemon_uid] = member.gym_id;
+                    }
+
+                    return GymPokemon.from_pokemon_uids_map(pokemon_uids);
+                })
+                .then((result) => {
+                    const map_obj = result.map;
+                    const gymPokes = result.pokemon;
+
                     // Attach gym members to gyms.
                     for (var i = 0; i < gymPokes.length; i++) {
                         const poke = gymPokes[i];
-                        const gym = gym_refs['' + poke.gym_id];
+                        const gym_id = map_obj['' + poke.pokemon_uid];
+                        const gym = gym_refs[gym_id];
 
                         // Make sure the list is initialized.
                         if (!gym.hasOwnProperty('pokemon')) {
@@ -163,7 +181,11 @@ function prepareGymPromise(query, params) {
 
                         gym.pokemon.push(poke);
                     }
-                })*/
+
+                    const values = Object.keys(gym_refs).map((k) => gym_refs[k]);
+
+                    return resolve(values);
+                })
                 .catch(utils.handle_error);
             }
         });
