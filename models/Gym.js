@@ -146,7 +146,7 @@ function prepareGymPromise(query, params) {
                         gym_refs['' + raid.gym_id].raid = raid;
                     }
                 })
-                .then(() => GymPokemon.from_gym_ids(gym_ids))
+                /*.then(() => GymPokemon.from_gym_ids(gym_ids))
                 .then((gymPokes) => {
                     // Attach gym members to gyms.
                     for (var i = 0; i < gymPokes.length; i++) {
@@ -163,7 +163,7 @@ function prepareGymPromise(query, params) {
 
                         gym.pokemon.push(poke);
                     }
-                })
+                })*/
                 .catch(utils.handle_error);
             }
         });
