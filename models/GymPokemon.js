@@ -12,7 +12,8 @@ const db = require('../inc/db.js').pool;
 /* Helpers. */
 
 // Make sure SQL uses proper timezone.
-const FROM_UNIXTIME = "CONVERT_TZ(FROM_UNIXTIME(?), @@session.time_zone, '+00:00')";
+//const FROM_UNIXTIME = "CONVERT_TZ(FROM_UNIXTIME(?), @@session.time_zone, '+00:00')";
+const FROM_UNIXTIME = 'FROM_UNIXTIME(?)';
 
 function prepareGymPokemonPromise(query, params, map_object) {
     return new Promise((resolve, reject) => {
