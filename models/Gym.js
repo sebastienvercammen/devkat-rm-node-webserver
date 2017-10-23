@@ -154,12 +154,19 @@ function prepareGymPromise(query, params) {
                     // mapping pokemon_uid to gym_id.
                     const pokemon_uids = {};
 
-                    for (var i = 0; i < gymMembers.length; i++) {
-                        const member = gymMembers[i];
-                        pokemon_uids[member.pokemon_uid] = member.gym_id;
-                    }
+                    if (gymMembers.length > 0) {
+                        for (var i = 0; i < gymMembers.length; i++) {
+                            const member = gymMembers[i];
+                            pokemon_uids[member.pokemon_uid] = member.gym_id;
+                        }
 
-                    return GymPokemon.from_pokemon_uids_map(pokemon_uids);
+                        return GymPokemon.from_pokemon_uids_map(pokemon_uids);
+                    } else {
+                        return {
+                            'map': pokemon_uids,
+                            'pokemon': []
+                        }
+                    }
                 })
                 .then((result) => {
                     const map_obj = result.map;
