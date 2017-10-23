@@ -26,7 +26,8 @@ const pool = mysql.createPool({
     'password': DB_PASS,
     'database': DB_DATABASE,
     'connectionLimit': DB_POOL_MAX_SIZE,
-    'insecureAuth': true
+    'insecureAuth': true,
+    'dateStrings': true
 });
 
 
