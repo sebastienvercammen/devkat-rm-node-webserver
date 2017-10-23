@@ -1,8 +1,8 @@
 # The Sublimely Magnificent Node.js RM Webserver Mark III
 
-An asynchronous Node.js webserver on Express.js that uses Sequelize for ORM and that supports gzip compression, load limiting with toobusy-js and multiprocessing (+ process management) with cluster.
+An asynchronous Node.js webserver using restify for the API, node-mysql for MySQL integration and that supports gzip compression, load limiting with toobusy-js, rate limiting with restify's throttling and multiprocessing (+ process management) with cluster.
 
-Since this webserver is meant to be set up as a managed microcomponent - not as a replacement webserver for static components - its functionality is strictly limited to serving dynamic data requests only. Using a more mature webserver to serve static components and as a reverse proxy is highly recommended (nginx on Linux, apache2 on Windows).
+Since this webserver is meant to be set up as a managed microcomponent - not as a replacement webserver for static components - its functionality is strictly limited to serving dynamic data requests only. **Using a more mature webserver to serve static components and as a reverse proxy is highly recommended (nginx on Linux, apache2 on Windows)**, an example nginx configuration is provided below.
 
 If you want to use a more advanced process manager, we recommend [disabling cluster in your configuration](#disabling-process-management-with-cluster) to disable process management.
 
@@ -15,11 +15,16 @@ These instructions will help you deploy the project on a live system.
 ### Prerequisites
 
 - [Node.js v6.11.4 or higher](https://nodejs.org/en/)
-- npm v4.6.0 or higher
+- npm v5.5.0 or higher
 
 ```
 To update npm:
 npm install -g npm
+
+To update Node.js:
+apt-get remove node nodejs
+npm install -g n
+n stable
 ```
 
 ### Installing
