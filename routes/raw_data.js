@@ -184,6 +184,7 @@ module.exports = (server) => {
                 new_area = false;
             } else if (!(oSwLat === swLat && oSwLng === swLng && oNeLat === neLat && oNeLng === neLng)) {
                 new_area = true; // We moved.
+                debug('Request for new viewport.');
             }
         }
 
