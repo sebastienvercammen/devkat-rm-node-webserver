@@ -2,6 +2,8 @@
 require('dotenv').config();
 
 const debug = require('debug')('devkat:routes:raw_data');
+const pokemon_debug = require('debug')('devkat:db:pokemon');
+
 const errors = require('restify-errors');
 const corsMiddleware = require('restify-cors-middleware');
 
@@ -184,7 +186,6 @@ module.exports = (server) => {
                 new_area = false;
             } else if (!(oSwLat === swLat && oSwLng === swLng && oNeLat === neLat && oNeLng === neLng)) {
                 new_area = true; // We moved.
-                debug('Request for new viewport.');
             }
         }
 
@@ -236,6 +237,8 @@ module.exports = (server) => {
                 response.pokemons = pokes;
                 completed_pokemon = true;
 
+                pokemon_debug('Found %s relevant Pokémon results.', pokes.length);
+
                 return partialCompleted(completed_pokemon, completed_pokestops, completed_gyms, res, response);
             };
 
@@ -256,6 +259,8 @@ module.exports = (server) => {
                     // If screen is moved add newly uncovered Pokémon to the
                     // ones that were modified since last request time.
                     if (new_area) {
+                        debug('Request for new viewport.');
+
                         Pokemon.get_active(excluded, swLat, swLng, neLat, neLng, null, oSwLat, oSwLng, oNeLat, oNeLng).then((new_pokes) => {
                             // Add the new ones to the old result and pass to handler.
                             return foundMons(pokes.concat(new_pokes));

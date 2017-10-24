@@ -166,8 +166,6 @@ function preparePokemonPromise(query, params) {
             if (err) {
                 return reject(err);
             } else {
-                debug('Found %s relevant Pokémon results.', results.length);
-
                 // Manipulate response.
                 for (var i = 0; i < results.length; i++) {
                     let poke = results[i];
