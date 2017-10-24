@@ -255,7 +255,7 @@ module.exports = (server) => {
                     // If screen is moved add newly uncovered Pokémon to the
                     // ones that were modified since last request time.
                     if (new_area) {
-                        Pokemon.get_active(excluded, swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng).then((new_pokes) => {
+                        Pokemon.get_active(excluded, swLat, swLng, neLat, neLng, null, oSwLat, oSwLng, oNeLat, oNeLng).then((new_pokes) => {
                             // Add the new ones to the old result and pass to handler.
                             return foundMons(pokes.concat(new_pokes));
                         }).catch(utils.handle_error);

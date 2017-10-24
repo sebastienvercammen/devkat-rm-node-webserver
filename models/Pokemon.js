@@ -117,7 +117,7 @@ function prepareQuery(options) {
     }
 
     // If timestamp is known, only load modified Pokemon.
-    if (timestamp !== false) {
+    if (timestamp) {
         // Change POSIX timestamp to UTC time.
         timestamp = new Date(timestamp).getTime();
 
