@@ -124,6 +124,8 @@ LAG_INTERVAL_MS=500
 
 #### Enabling request throttling
 
+**Note:** When enabling request throttling, make sure you're not using a reverse proxy, since all requests will come from the same IP.
+
 ```
 # Enable/disable webserver request throttling.
 ENABLE_THROTTLE=true

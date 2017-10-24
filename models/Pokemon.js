@@ -9,6 +9,7 @@ require('dotenv').config();
 const db = require('../inc/db.js').pool;
 const utils = require('../inc/utils.js');
 const debug = require('debug')('devkat:db:pokemon');
+const debug_query = require('debug')('devkat:db:pokemon:sql');
 const pokedex = require('../data/pokedex/pokemon.json');
 
 
@@ -165,7 +166,7 @@ function preparePokemonPromise(query, params) {
             if (err) {
                 return reject(err);
             } else {
-                debug('Found %s Pokémon results.', results.length);
+                debug('Found %s relevant Pokémon results.', results.length);
 
                 // Manipulate response.
                 for (var i = 0; i < results.length; i++) {
@@ -210,6 +211,8 @@ Pokemon.get_active = (excluded, swLat, swLng, neLat, neLng, timestamp, oSwLat, o
     const query = 'SELECT * FROM ' + tablename + query_where[0];
     const params = query_where[1];
 
+    debug_query(query_where);
+
     // Return promise.
     return preparePokemonPromise(query, params);
 };
@@ -227,6 +230,8 @@ Pokemon.get_active_by_ids = (ids, excluded, swLat, swLng, neLat, neLng) => {
 
     const query = 'SELECT * FROM ' + tablename + query_where[0];
     const params = query_where[1];
+
+    debug_query(query_where);
 
     // Return promise.
     return preparePokemonPromise(query, params);
