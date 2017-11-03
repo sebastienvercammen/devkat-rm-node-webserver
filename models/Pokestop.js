@@ -127,7 +127,10 @@ function preparePokestopPromise(query, params) {
                     // Avoid timezone issues. This is a UTC timestamp.
                     pokestop.last_modified = pokestop.last_modified.replace(' ', 'T') + 'Z';
                     pokestop.last_updated = pokestop.last_updated.replace(' ', 'T') + 'Z';
-                    pokestop.lure_expiration = pokestop.lure_expiration.replace(' ', 'T') + 'Z';
+
+                    if (pokestop.lure_expiration) {
+                        pokestop.lure_expiration = pokestop.lure_expiration.replace(' ', 'T') + 'Z';
+                    }
 
                     // Convert datetime to UNIX timestamp.
                     pokestop.last_modified = Date.parse(pokestop.last_modified) || 0;
