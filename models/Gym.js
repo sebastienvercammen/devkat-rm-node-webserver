@@ -123,6 +123,10 @@ function prepareGymPromise(query, params) {
                 for (var i = 0; i < results.length; i++) {
                     let gym = results[i];
 
+                    // Avoid timezone issues. This is a UTC timestamp.
+                    gym.last_modified = gym.last_modified.replace(' ', 'T') + 'Z';
+                    gym.last_scanned = gym.last_scanned.replace(' ', 'T') + 'Z';
+
                     // Convert datetime to UNIX timestamp.
                     gym.last_modified = Date.parse(gym.last_modified) || 0;
                     gym.last_scanned = Date.parse(gym.last_scanned) || 0;
@@ -139,6 +143,11 @@ function prepareGymPromise(query, params) {
                     // Attach raids to gyms.
                     for (var i = 0; i < raids.length; i++) {
                         const raid = raids[i];
+
+                        // Avoid timezone issues. This is a UTC timestamp.
+                        raid.spawn = raid.spawn.replace(' ', 'T') + 'Z';
+                        raid.start = raid.start.replace(' ', 'T') + 'Z';
+                        raid.end = raid.end.replace(' ', 'T') + 'Z';
 
                         // Convert datetime to UNIX timestamp.
                         raid.spawn = Date.parse(raid.spawn) || 0;
@@ -182,6 +191,9 @@ function prepareGymPromise(query, params) {
                         if (!gym.hasOwnProperty('pokemon')) {
                             gym.pokemon = [];
                         }
+
+                        // Avoid timezone issues. This is a UTC timestamp.
+                        poke.last_seen = poke.last_seen.replace(' ', 'T') + 'Z';
 
                         // Convert datetime to UNIX timestamp.
                         poke.last_seen = Date.parse(poke.last_seen) || 0;

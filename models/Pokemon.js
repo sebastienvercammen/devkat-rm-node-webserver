@@ -171,6 +171,10 @@ function preparePokemonPromise(query, params) {
                     let poke = results[i];
                     let pokemon_id = poke.pokemon_id;
 
+                    // Avoid timezone issues. This is a UTC timestamp.
+                    poke.disappear_time = poke.disappear_time.replace(' ', 'T') + 'Z';
+                    poke.last_modified = poke.last_modified.replace(' ', 'T') + 'Z';
+
                     // Add name/rarity/types and transform times. Destructive.
                     poke.disappear_time = Date.parse(poke.disappear_time) || 0;
                     poke.last_modified = Date.parse(poke.last_modified) || 0;
