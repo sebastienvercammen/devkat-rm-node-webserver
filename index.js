@@ -23,6 +23,7 @@
 // Parse config.
 require('dotenv').config();
 
+const fs = require('fs');
 const debug = require('debug')('devkat:master');
 const cluster = require('cluster');
 const utils = require('./inc/utils.js');
