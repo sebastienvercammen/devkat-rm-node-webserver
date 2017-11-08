@@ -164,9 +164,10 @@ module.exports = (server) => {
         var timestamp = parseGetParam(data.timestamp, undefined);
 
         // Convert to usable date object.
-        if (!isEmpty(timestamp)) {
+        // Temporarily disabled until we fix the viewport change.
+        /*if (!isEmpty(timestamp)) {
             timestamp = new Date(timestamp);
-        }
+        }*/
 
         // Query response is a combination of Pokémon + Pokéstops + Gyms, so
         // we have to wait until the necessary Promises have completed.
