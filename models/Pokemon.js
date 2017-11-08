@@ -46,7 +46,7 @@ function prepareQuery(options) {
     var timestamp = options.timestamp || false;
 
     // Query options.
-    debug('Selecting Pokémon where disappear_time > FROM_UNIXTIME(%s).', Math.round(Date.now() / 1000));
+    debug('Selecting Pokémon where disappear_time > %s.', Math.round(Date.now() / 1000));
     var query_where = [
         [
             'disappear_time > ' + FROM_UNIXTIME,
@@ -128,6 +128,8 @@ function prepareQuery(options) {
                 [Math.round(timestamp / 1000)]
             ]
         );
+    } else {
+        debug('Request without timestamp.');
     }
 
     // Send Pokémon in view but exclude those within old boundaries.
