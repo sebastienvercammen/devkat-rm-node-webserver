@@ -318,12 +318,6 @@ module.exports = (server) => {
 
                 while (gyms.length > 0) {
                     const gym = gyms.pop();
-                    
-                    // TODO: Add gym members.
-                    gym.pokemon = [];
-
-                    // TODO: Add gym details.
-                    gym.name = '';
 
                     // Attach to result object.
                     gyms_obj[gym.gym_id] = gym;
