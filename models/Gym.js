@@ -158,6 +158,11 @@ function prepareGymPromise(query, params) {
                         raid.start = Date.parse(raid.start) || 0;
                         raid.end = Date.parse(raid.end) || 0;
 
+                        // Assign Pokémon data.
+                        raid.pokemon_name = getPokemonName(pokedex, raid.pokemon_id) || '';
+                        raid.pokemon_rarity = getPokemonRarity(pokedex, raid.pokemon_id) || null;
+                        raid.pokemon_types = getPokemonTypes(pokedex, raid.pokemon_id) || [];
+
                         gym_refs['' + raid.gym_id].raid = raid;
                     }
                 })
@@ -209,9 +214,9 @@ function prepareGymPromise(query, params) {
                         poke.deployment_time = member.deployment_time;
 
                         // Assign Pokémon data.
-                        poke.pokemon_name = getPokemonName(pokedex, pokemon_id) || '';
-                        poke.pokemon_rarity = getPokemonRarity(pokedex, pokemon_id) || null;
-                        poke.pokemon_types = getPokemonTypes(pokedex, pokemon_id) || [];
+                        poke.pokemon_name = getPokemonName(pokedex, poke.pokemon_id) || '';
+                        poke.pokemon_rarity = getPokemonRarity(pokedex, poke.pokemon_id) || null;
+                        poke.pokemon_types = getPokemonTypes(pokedex, poke.pokemon_id) || [];
 
                         gym.pokemon.push(poke);
                     }
