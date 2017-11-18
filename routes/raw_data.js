@@ -353,9 +353,7 @@ module.exports = (server) => {
 
         // A request for nothing?
         if (!show_pokemon && !show_pokestops && !show_gyms) {
-            return next(
-                new errors.InvalidArgumentError('Nothing requested.')
-            );
+            return res.json(response);
         }
     });
 };
