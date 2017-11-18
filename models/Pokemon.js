@@ -128,18 +128,20 @@ function prepareQuery(options) {
                 [Math.round(timestamp / 1000)]
             ]
         );
+
+        // Send Pokémon in view but exclude those within old boundaries.
+        // Don't use when timestamp is empty, it means we're intentionally trying to get
+        // old Pokémon as well (new viewport or first request).
+        if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
+            query_where.push(
+                [
+                    'latitude < ? AND latitude > ? AND longitude < ? AND longitude > ?',
+                    [oSwLat, oNeLat, oSwLng, oNeLng]
+                ]
+            );
+        }
     } else {
         debug('Request without timestamp.');
-    }
-
-    // Send Pokémon in view but exclude those within old boundaries.
-    if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
-        query_where.push(
-            [
-                'latitude < ? AND latitude > ? AND longitude < ? AND longitude > ?',
-                [oSwLat, oNeLat, oSwLng, oNeLng]
-            ]
-        );
     }
 
     // Prepare query.
