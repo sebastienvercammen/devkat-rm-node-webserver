@@ -160,13 +160,13 @@ function prepareGymPromise(query, params) {
                 .then(() => GymMember.from_gym_ids(gym_ids))
                 .then((gymMembers) => {
                     // Get gym Pokémon from gym members by
-                    // mapping pokemon_uid to gym_id.
+                    // mapping pokemon_uid to gym member.
                     const pokemon_uids = {};
 
                     if (gymMembers.length > 0) {
                         for (var i = 0; i < gymMembers.length; i++) {
                             const member = gymMembers[i];
-                            pokemon_uids[member.pokemon_uid] = member.gym_id;
+                            pokemon_uids[member.pokemon_uid] = member;
                         }
 
                         return GymPokemon.from_pokemon_uids_map(pokemon_uids);
@@ -184,7 +184,8 @@ function prepareGymPromise(query, params) {
                     // Attach gym members to gyms.
                     for (var i = 0; i < gymPokes.length; i++) {
                         const poke = gymPokes[i];
-                        const gym_id = map_obj['' + poke.pokemon_uid];
+                        const member = map_obj['' + poke.pokemon_uid]
+                        const gym_id = member.gym_id;
                         const gym = gym_refs[gym_id];
 
                         // Make sure the list is initialized.
@@ -197,6 +198,11 @@ function prepareGymPromise(query, params) {
 
                         // Convert datetime to UNIX timestamp.
                         poke.last_seen = Date.parse(poke.last_seen) || 0;
+
+                        // Assign member data to the Pokémon being sent.
+                        poke.cp_decayed = member.cp_decayed;
+                        poke.last_scanned = member.last_scanned;
+                        poke.deployment_time = member.deployment_time;
 
                         gym.pokemon.push(poke);
                     }
