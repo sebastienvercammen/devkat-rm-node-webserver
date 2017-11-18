@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const db = require('../inc/db.js').pool;
 const utils = require('../inc/utils.js');
+const pokedex = require('../data/pokedex/pokemon.json');
 
 const Raid = require('./Raid');
 const GymMember = require('./GymMember');
@@ -17,6 +18,9 @@ const GymPokemon = require('./GymPokemon');
 /* Readability references. */
 
 const isEmpty = utils.isEmpty;
+const getPokemonName = utils.pokemon.getPokemonName;
+const getPokemonRarity = utils.pokemon.getPokemonRarity;
+const getPokemonTypes = utils.pokemon.getPokemonTypes;
 
 
 /* Settings. */
@@ -203,6 +207,11 @@ function prepareGymPromise(query, params) {
                         poke.cp_decayed = member.cp_decayed;
                         poke.last_scanned = member.last_scanned;
                         poke.deployment_time = member.deployment_time;
+
+                        // Assign Pokémon data.
+                        poke.pokemon_name = getPokemonName(pokedex, pokemon_id) || '';
+                        poke.pokemon_rarity = getPokemonRarity(pokedex, pokemon_id) || null;
+                        poke.pokemon_types = getPokemonTypes(pokedex, pokemon_id) || [];
 
                         gym.pokemon.push(poke);
                     }
