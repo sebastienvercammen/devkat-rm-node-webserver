@@ -7,7 +7,7 @@ const blacklist = {};
 
 // No referrer = request w/o being on a website.
 blacklist.no_referrer = (req) => {
-    return req.header('Referer', false) !== false;
+    return req.header('Referer', false) === false;
 };
 
 // iPokeGo.
