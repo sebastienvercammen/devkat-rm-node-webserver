@@ -3,21 +3,10 @@
     Supports gzip compression, load limiting w/ toobusy-js and multiprocessing
     with cluster.
 
-    TODO:
-        - /raw_data.
-            - Send scanned location data.
-            - Store initial viewpoint in memory.
-            - Stream results in chunks. Needs frontend JS rework.
-        - Global blacklist.
-        - Search control.
-        - Manual captcha solving.
+    Developed by Sébastien Vercammen, for devkat.
+    It's all thanks to our Patrons: https://www.patreon.com/devkat
 
-
-    Everything has been stripped out and replaced with more efficient versions
-    - Added support for HTTPS.
-    - Added built-in dtrace support.
-    - Reworked logging. More detailed options and better configurability.
-    - Added request throttling: you can configure a maximum number of requests per second per IP (rate limit), and set an optional higher limit for when users should temporarily be allowed to go over the rate limit (burst limit).
+    Thank you for supporting us to do what we do best.
  */
 
 // Parse config.
@@ -39,8 +28,8 @@ const fixWinSIGINT = utils.fixWinSIGINT;
 
 /* Settings. */
 
-const SERVER_NAME = process.env.SERVER_NAME || 'devkat RM Webserver';
-const SERVER_VERSION = process.env.SERVER_VERSION || '2.0.0';
+const SERVER_NAME = 'devkat RM Webserver';
+const SERVER_VERSION = '2.2.1';
 const HTTPS = process.env.ENABLE_HTTPS === 'true' || false;
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH || 'privkey.pem';
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH || 'cert.pem';

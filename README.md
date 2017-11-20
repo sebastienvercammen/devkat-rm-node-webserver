@@ -217,4 +217,4 @@ server {
 
 ## License
 
-This project is licensed under a custom license - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under AGPLv3 - see the [LICENSE.md](LICENSE.md) file for details.
