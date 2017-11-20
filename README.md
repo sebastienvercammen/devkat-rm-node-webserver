@@ -27,7 +27,7 @@ Windows: To update npm and Node.js, manually download the LTS version from their
 To update Node.js and npm:
 apt-get remove node nodejs
 curl -L https://git.io/n-install | bash
-n stable
+n lts
 
 To update only npm:
 npm install -g npm
