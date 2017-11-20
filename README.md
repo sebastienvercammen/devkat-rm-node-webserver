@@ -166,9 +166,11 @@ Based on [RocketMap's nginx example](http://rocketmap.readthedocs.io/en/develop/
 upstream flask {
     http://127.0.0.1:5000;
 }
-
+upstream flask_rawdata {
+    http://127.0.0.1:5000/raw_data;
+}
 upstream devkat {
-    http://127.0.0.1:1337;
+    http://127.0.0.1:1337/raw_data;
 }
 
 server {
@@ -177,34 +179,34 @@ server {
     location /go/raw_data {
         # /stats
         if ($arg_seen = "true") {
-            proxy_pass http://flask/raw_data;
+            proxy_pass http://flask_rawdata;
         }
 
         # /status
         if ($arg_status = "true") {
-            proxy_pass http://flask/raw_data;
+            proxy_pass http://flask_rawdata;
         }
 
         # Appearances & appearance details.
         if ($arg_appearances = "true") {
-            proxy_pass http://flask/raw_data;
+            proxy_pass http://flask_rawdata;
         }
 
         if ($arg_appearancesDetails = "true") {
-            proxy_pass http://flask/raw_data;
+            proxy_pass http://flask_rawdata;
         }
 
         # Spawnpoints.
         if ($arg_spawnpoints = "true") {
-            proxy_pass http://flask/raw_data;
+            proxy_pass http://flask_rawdata;
         }
 
         # Scanned locations.
         if ($arg_scanned = "true") {
-            proxy_pass http://flask/raw_data;
+            proxy_pass http://flask_rawdata;
         }
 
-        proxy_pass http://devkat/raw_data;
+        proxy_pass http://devkat;
     }
 
     location /go/ {
