@@ -168,13 +168,13 @@ Based on [RocketMap's nginx example](http://rocketmap.readthedocs.io/en/develop/
 
 ```
 upstream flask {
-    http://127.0.0.1:5000;
+    server http://127.0.0.1:5000;
 }
 upstream flask_rawdata {
-    http://127.0.0.1:5000/raw_data;
+    server http://127.0.0.1:5000/raw_data;
 }
 upstream devkat {
-    http://127.0.0.1:1337/raw_data;
+    server http://127.0.0.1:1337/raw_data;
 }
 
 server {
