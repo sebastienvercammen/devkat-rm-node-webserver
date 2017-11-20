@@ -152,24 +152,63 @@ CORS_WHITELIST=*
 ENABLE_CLUSTER=false
 ```
 
-## Using nginx as a reverse proxy to /raw_data
+## Using nginx as a reverse proxy to /raw_data, with fallback to Flask for unsupported features
 
 If you're using nginx to serve your RocketMap website, make sure your nginx configuration looks like the example below to serve /raw_data with the new webserver, and all other paths with RocketMap's Flask/werkzeug.
 
 This example assumes your RM webserver is running on port 5000 and the devkat webserver on port 1337. Adjust accordingly.
 
+If a feature is not yet implemented in this webserver, the example configuration falls back to the Flask webserver. The focus of this webserver is to have the best performance for /raw_data requests, although other features are planned to be implemented (at a lower priority).
+
 Based on [RocketMap's nginx example](http://rocketmap.readthedocs.io/en/develop/advanced-install/nginx.html).
 
 ```
+upstream flask {
+    http://127.0.0.1:5000;
+}
+
+upstream devkat {
+    http://127.0.0.1:1337;
+}
+
 server {
     listen 80;
-    
+
     location /go/raw_data {
+        # /stats
+        if ($args ~ seen=true) {
+            proxy_pass http://flask;
+        }
+
+        # /status
+        if ($args ~ status=true) {
+            proxy_pass http://flask;
+        }
+
+        # Appearances & appearance details.
+        if ($args ~ appearances=true) {
+            proxy_pass http://flask;
+        }
+
+        if ($args ~ appearancesDetails=true) {
+            proxy_pass http://flask;
+        }
+
+        # Spawnpoints.
+        if ($args ~ spawnpoints=true) {
+            proxy_pass http://flask;
+        }
+
+        # Scanned locations.
+        if ($args ~ scanned=true) {
+            proxy_pass http://flask;
+        }
+
         proxy_pass http://127.0.0.1:1337/raw_data;
     }
-    
+
     location /go/ {
-        proxy_pass http://127.0.0.1:5000/;
+        proxy_pass http://flask;
     }
 }
 ```
