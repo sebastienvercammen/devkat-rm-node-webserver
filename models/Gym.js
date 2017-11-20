@@ -163,7 +163,7 @@ function prepareGymPromise(query, params) {
 
                         // Assign Pokémon data.
                         raid.pokemon_name = getPokemonName(pokedex, raid.pokemon_id) || '';
-                        raid.pokemon_rarity = getPokemonRarity(pokedex, raid.pokemon_id) || null;
+                        raid.pokemon_rarity = getPokemonRarity(pokedex, raid.pokemon_id) || '';
                         raid.pokemon_types = getPokemonTypes(pokedex, raid.pokemon_id) || [];
 
                         gym_refs['' + raid.gym_id].raid = raid;
@@ -213,7 +213,7 @@ function prepareGymPromise(query, params) {
 
                         // Assign Pokémon data.
                         poke.pokemon_name = getPokemonName(pokedex, poke.pokemon_id) || '';
-                        poke.pokemon_rarity = getPokemonRarity(pokedex, poke.pokemon_id) || null;
+                        poke.pokemon_rarity = getPokemonRarity(pokedex, poke.pokemon_id) || '';
                         poke.pokemon_types = getPokemonTypes(pokedex, poke.pokemon_id) || [];
 
                         gym.pokemon.push(poke);
