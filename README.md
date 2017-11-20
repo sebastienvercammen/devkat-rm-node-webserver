@@ -1,3 +1,7 @@
+[![Donate](https://img.shields.io/badge/Support-Patreon-orange.svg)](https://www.patreon.com/devkat)
+![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
+![license](https://img.shields.io/github/license/sebastienvercammen/devkat-rm-node-webserver.svg)
+
 # The Sublimely Magnificent Node.js RM Webserver Mark III
 
 An asynchronous Node.js webserver using restify for the API, node-mysql for MySQL integration and that supports gzip compression, load limiting with toobusy-js, rate limiting with restify's throttling and multiprocessing (+ process management) with cluster.
