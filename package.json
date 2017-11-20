@@ -1,6 +1,6 @@
 {
   "name": "rm-node-webserver",
-  "version": "2.0.0",
+  "version": "2.2.1",
   "description": "Event-driven RocketMap webserver in Node.js as a replacement for python's Flask/werkzeug development webserver.",
   "main": "index.js",
   "scripts": {
