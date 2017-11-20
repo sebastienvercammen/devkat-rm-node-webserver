@@ -8,6 +8,7 @@ const errors = require('restify-errors');
 const corsMiddleware = require('restify-cors-middleware');
 
 const utils = require('../inc/utils.js');
+const blacklist = require('../inc/blacklist.js');
 
 const Pokemon = require('../models/Pokemon');
 const Pokestop = require('../models/Pokestop');
@@ -113,6 +114,20 @@ module.exports = (server) => {
 
         /* Verify request. */
 
+        // Don't allow blacklisted fingerprints.
+        const fingerprints = Object.keys(blacklist);
+
+        for (var i = 0; i < fingerprints.length; i++) {
+            const key = fingerprints[i];
+            const fingerprint = blacklist[key];
+
+            if (fingerprint(req)) {
+                return next(
+                    new errors.ForbiddenError('Blacklisted fingerprint.')
+                );
+            }
+        }
+
         // Make sure we have all required parameters for a correct request.
         const required = [
             'swLat', 'swLng', 'neLat', 'neLng',
@@ -122,7 +137,7 @@ module.exports = (server) => {
         // Bad request.
         if (!queryHasRequiredParams(data, required)) {
             return next(
-                new errors.InvalidArgumentError('Invalid parameters.')
+                new errors.ForbiddenError('Invalid parameters.')
             );
         }
 
