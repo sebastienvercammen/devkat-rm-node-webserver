@@ -176,35 +176,35 @@ server {
 
     location /go/raw_data {
         # /stats
-        if ($args ~ seen=true) {
+        if ($arg_seen = "true") {
             proxy_pass http://flask;
         }
 
         # /status
-        if ($args ~ status=true) {
+        if ($arg_status = "true") {
             proxy_pass http://flask;
         }
 
         # Appearances & appearance details.
-        if ($args ~ appearances=true) {
+        if ($arg_appearances = "true") {
             proxy_pass http://flask;
         }
 
-        if ($args ~ appearancesDetails=true) {
+        if ($arg_appearancesDetails = "true") {
             proxy_pass http://flask;
         }
 
         # Spawnpoints.
-        if ($args ~ spawnpoints=true) {
+        if ($arg_spawnpoints = "true") {
             proxy_pass http://flask;
         }
 
         # Scanned locations.
-        if ($args ~ scanned=true) {
+        if ($arg_scanned = "true") {
             proxy_pass http://flask;
         }
 
-        proxy_pass http://127.0.0.1:1337/raw_data;
+        proxy_pass http://devkat/raw_data;
     }
 
     location /go/ {
