@@ -22,13 +22,15 @@ These instructions will help you deploy the project on a live system.
 - npm v5.5.0 or higher
 
 ```
-To update npm:
-npm install -g npm
+Windows: To update npm and Node.js, manually download the LTS version from their website.
 
-To update Node.js:
+To update Node.js and npm:
 apt-get remove node nodejs
-npm install -g n
+curl -L https://git.io/n-install | bash
 n stable
+
+To update only npm:
+npm install -g npm
 ```
 
 ### Installing
