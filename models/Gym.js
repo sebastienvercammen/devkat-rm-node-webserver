@@ -135,6 +135,9 @@ function prepareGymPromise(query, params) {
                     gym.last_modified = Date.parse(gym.last_modified) || 0;
                     gym.last_scanned = Date.parse(gym.last_scanned) || 0;
 
+                    // Always send data, even for empty lists. RM expects it.
+                    gym.pokemon = [];
+
                     gym_refs['' + gym.gym_id] = gym;
                 }
 
@@ -196,11 +199,6 @@ function prepareGymPromise(query, params) {
                         const member = map_obj['' + poke.pokemon_uid]
                         const gym_id = member.gym_id;
                         const gym = gym_refs[gym_id];
-
-                        // Make sure the list is initialized.
-                        if (!gym.hasOwnProperty('pokemon')) {
-                            gym.pokemon = [];
-                        }
 
                         // Avoid timezone issues. This is a UTC timestamp.
                         poke.last_seen = poke.last_seen.replace(' ', 'T') + 'Z';
