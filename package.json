@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://gitlab.sebastienvercammen.be/devkat/rm-node-webserver.git"
+    "url": "https://github.com/sebastienvercammen/devkat-rm-node-webserver.git"
   },
   "keywords": [
     "rocketmap",

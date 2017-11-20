@@ -45,7 +45,7 @@ npm -v
 Clone the project and its submodules:
 
 ```
-git clone --recursive http://USERNAME@gitlab.sebastienvercammen.be/devkat/rm-node-webserver.git
+git clone --recursive https://github.com/sebastienvercammen/devkat-rm-node-webserver.git
 ```
 
 Make sure you are in the project directory with your terminal, and install the dependencies:
