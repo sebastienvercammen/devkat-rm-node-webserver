@@ -311,7 +311,7 @@ module.exports = (server) => {
                     // If screen is moved add newly uncovered Pokéstops to the
                     // ones that were modified since last request time.
                     if (new_area) {
-                        Pokestop.get_stops(swLat, swLng, neLat, neLng, lured_only, timestamp, oSwLat, oSwLng, oNeLat, oNeLng).then(function (new_pokestops) {
+                        Pokestop.get_stops(swLat, swLng, neLat, neLng, lured_only, null, oSwLat, oSwLng, oNeLat, oNeLng).then(function (new_pokestops) {
                             // Add the new ones to the old result and pass to handler.
                             return foundPokestops(pokestops.concat(new_pokestops));
                         }).catch(utils.handle_error);
@@ -354,7 +354,7 @@ module.exports = (server) => {
                     // If screen is moved add newly uncovered Gyms to the
                     // ones that were modified since last request time.
                     if (new_area) {
-                        Gym.get_gyms(swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, oNeLng).then((new_gyms) => {
+                        Gym.get_gyms(swLat, swLng, neLat, neLng, null, oSwLat, oSwLng, oNeLat, oNeLng).then((new_gyms) => {
                             // Add the new ones to the old result and pass to handler.
                             return foundGyms(gyms.concat(new_gyms));
                         }).catch(utils.handle_error);
