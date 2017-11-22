@@ -64,7 +64,7 @@ function prepareQuery(options) {
         );
     }
 
-    if (timestamp !== false) {
+    if (timestamp) {
         // Change POSIX timestamp to UTC time.
         timestamp = new Date(timestamp).getTime();
 
@@ -74,16 +74,18 @@ function prepareQuery(options) {
                 [Math.round(timestamp / 1000)]
             ]
         );
-    }
 
-    // Send Gyms in view but exclude those within old boundaries.
-    if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
-        query_where.push(
-            [
-                'g.latitude < ? AND g.latitude > ? AND g.longitude < ? AND g.longitude > ?',
-                [oSwLat, oNeLat, oSwLng, oNeLng]
-            ]
-        );
+        // Send Gyms in view but exclude those within old boundaries.
+        // Don't use when timestamp is empty, it means we're intentionally trying to get
+        // old gyms as well (new viewport or first request).
+        if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
+            query_where.push(
+                [
+                    'g.latitude < ? AND g.latitude > ? AND g.longitude < ? AND g.longitude > ?',
+                    [oSwLat, oNeLat, oSwLng, oNeLng]
+                ]
+            );
+        }
     }
 
     // Prepare query.

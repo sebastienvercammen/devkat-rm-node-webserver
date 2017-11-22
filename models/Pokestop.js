@@ -57,7 +57,7 @@ function prepareQueryOptions(options) {
         );
     }
 
-    if (timestamp !== false) {
+    if (timestamp) {
         // Change POSIX timestamp to UTC time.
         timestamp = new Date(timestamp).getTime();
 
@@ -67,6 +67,18 @@ function prepareQueryOptions(options) {
                 [Math.round(timestamp / 1000)]
             ]
         );
+
+        // Send Pokéstops in view but exclude those within old boundaries.
+        // Don't use when timestamp is empty, it means we're intentionally trying to get
+        // old Pokéstops as well (new viewport or first request).
+        if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
+            query_where.push(
+                [
+                    'latitude < ? AND latitude > ? AND longitude < ? AND longitude > ?',
+                    [oSwLat, oNeLat, oSwLng, oNeLng]
+                ]
+            );
+        }
     }
 
     // Lured stops.
@@ -75,16 +87,6 @@ function prepareQueryOptions(options) {
             [
                 'active_fort_modifier IS NOT NULL',
                 []
-            ]
-        );
-    }
-
-    // Send Pokéstops in view but exclude those within old boundaries.
-    if (!isEmpty(oSwLat) && !isEmpty(oSwLng) && !isEmpty(oNeLat) && !isEmpty(oNeLng)) {
-        query_where.push(
-            [
-                'latitude < ? AND latitude > ? AND longitude < ? AND longitude > ?',
-                [oSwLat, oNeLat, oSwLng, oNeLng]
             ]
         );
     }
