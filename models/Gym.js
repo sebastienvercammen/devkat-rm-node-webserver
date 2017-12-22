@@ -252,7 +252,7 @@ Gym.get_gyms = (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, o
         'timestamp': timestamp
     });
 
-    const query = 'SELECT * FROM ' + tablename + ' g INNER JOIN gymdetails gd ON g.gym_id = gd.gym_id' + query_where[0];
+    const query = 'SELECT g.*, gd.name, gd.description, gd.url FROM ' + tablename + ' g INNER JOIN gymdetails gd ON g.gym_id = gd.gym_id' + query_where[0];
     const params = query_where[1];
 
     // Return promise.
@@ -262,7 +262,7 @@ Gym.get_gyms = (swLat, swLng, neLat, neLng, timestamp, oSwLat, oSwLng, oNeLat, o
 // Get single Gym + Pokémon in Gym by ID.
 Gym.get_gym = (id) => {
     // This is a simple one.
-    const query = 'SELECT * FROM ' + tablename + ' g INNER JOIN gymdetails gd ON g.gym_id = gd.gym_id WHERE gym_id = ? LIMIT 1';
+    const query = 'SELECT g.*, gd.name, gd.description, gd.url FROM ' + tablename + ' g INNER JOIN gymdetails gd ON g.gym_id = gd.gym_id WHERE gym_id = ? LIMIT 1';
     const params = [ id ];
 
     // Return promise.
