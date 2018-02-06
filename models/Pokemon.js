@@ -17,7 +17,6 @@ const pokedex = require('../data/pokedex/pokemon.json');
 
 const isEmpty = utils.isEmpty;
 const getPokemonName = utils.pokemon.getPokemonName;
-const getPokemonRarity = utils.pokemon.getPokemonRarity;
 const getPokemonTypes = utils.pokemon.getPokemonTypes;
 
 
@@ -84,12 +83,12 @@ function prepareQuery(options) {
             [
                 // Calculate distance from middle point in viewport w/ MySQL.
                 Sequelize.literal(`
-                    3959 * 
-                    acos(cos(radians(` + middle_point_lat + `)) * 
-                    cos(radians(\`latitude\`)) * 
-                    cos(radians(\`longitude\`) - 
-                    radians(` + middle_point_lng + `)) + 
-                    sin(radians(` + middle_point_lat + `)) * 
+                    3959 *
+                    acos(cos(radians(` + middle_point_lat + `)) *
+                    cos(radians(\`latitude\`)) *
+                    cos(radians(\`longitude\`) -
+                    radians(` + middle_point_lng + `)) +
+                    sin(radians(` + middle_point_lat + `)) *
                     sin(radians(\`latitude\`)))
                     `),
                 'distance'
@@ -179,11 +178,10 @@ function preparePokemonPromise(query, params) {
                     poke.disappear_time = poke.disappear_time.replace(' ', 'T') + 'Z';
                     poke.last_modified = poke.last_modified.replace(' ', 'T') + 'Z';
 
-                    // Add name/rarity/types and transform times. Destructive.
+                    // Add name/types and transform times. Destructive.
                     poke.disappear_time = Date.parse(poke.disappear_time) || 0;
                     poke.last_modified = Date.parse(poke.last_modified) || 0;
                     poke.pokemon_name = getPokemonName(pokedex, pokemon_id) || '';
-                    poke.pokemon_rarity = getPokemonRarity(pokedex, pokemon_id) || '';
                     poke.pokemon_types = getPokemonTypes(pokedex, pokemon_id) || [];
                 }
 
