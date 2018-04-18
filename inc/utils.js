@@ -65,16 +65,6 @@ utils.pokemon = {
         return pokedex[id].name;
     },
 
-    // Get a Pokémon's rarity.
-    getPokemonRarity: (pokedex, id) => {
-        // Are we sure we have this Pokémon?
-        if (!utils.pokemon.hasPokemonData(pokedex, id)) {
-            return null;
-        }
-
-        return pokedex[id].rarity;
-    },
-
     // Get a Pokémon's types.
     getPokemonTypes: (pokedex, id) => {
         // Are we sure we have this Pokémon?
